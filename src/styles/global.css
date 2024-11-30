@@ -1,0 +1,78 @@
+html,body{
+    background-color: #1D222B;
+  }
+  
+  .main-content{
+      background-color: #1D222B;
+  }
+  
+  .maincontainer{
+    height: auto;
+  }
+  
+  /* src/styles/global.css or App.css */
+  .app-container {
+      display: flex;
+      width: 100%;
+      height: auto;
+      overflow: hidden; /* Prevent overflow */
+    }
+    
+  
+    
+    .sidebar-hidden {
+      transform: translateX(-100%); /* Hide the sidebar */
+    }
+    
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      transition: margin-left 0.3s ease;
+      margin-left: 0;
+      overflow: hidden; /* Prevent overflow of content */
+    }
+    
+    .content-with-sidebar {
+      margin-left: 250px; /* Ensure content adjusts when sidebar is visible */
+    }
+    
+    .content-full {
+      margin-left: 0; /* Full width when sidebar is hidden */
+    }
+    
+    .content-area {
+      flex-grow: 1; /* Allow content area to fill remaining space */
+    }
+  
+  
+    /* ViewUsers.css */
+    .view-more-btn {
+      background: linear-gradient(135deg, #1f1f1f, #333);
+      color: #e0e0e0;
+      border: none;
+      padding: 0.4rem 1rem;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    .view-more-btn:hover {
+      background: linear-gradient(135deg, #333, #1f1f1f);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .view-more-btn:focus {
+      outline: none;
+      box-shadow: 0px 0px 0px 2px #555;
+    }
+
+
+    .login-container .logo-img{
+      width: 150px;
+      height: auto;
+      margin-bottom: 20px;
+    }

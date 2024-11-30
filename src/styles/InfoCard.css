@@ -1,0 +1,96 @@
+.card {
+    border-radius: 8px;
+    border: none;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease; /* Add smooth transition for hover effect */
+  }
+
+.card1{
+    background-color: #6261CC !important;
+}
+.card2{
+    background-color: #3D99F5 !important;
+}
+.card3{
+    background-color: #EDAD21 !important;
+}
+.card4{
+    background-color: #DB5D5D !important;
+}
+
+
+.card .btn{
+    background-color: #343a40;
+    width: 100%;
+}
+  
+  .card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  /* Card Body Styling */
+  .card-body {
+    padding: 1.5rem;
+    background-color: #f8f9fa;  /* Lighter background color */
+    transition: background-color 0.3s ease; /* Smooth transition for background color on hover */
+  }
+  
+  /* Card Title Styling */
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+  
+  /* Card Text Styling */
+  .card-text {
+    font-size: 1rem;
+    color: #FFFFFF;
+    margin-bottom: 1rem;
+  }
+  
+  /* Button Styling */
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Hover effect for cards */
+  .card:hover {
+    transform: translateY(-5px); /* Slight upward movement on hover */
+  }
+  
+  .card:hover .card-body {
+    background-color: #e9ecef; /* Change background color on card hover */
+  }
+  
+  /* Background Color for Each Card */
+  .card:nth-child(1) {
+    background-color: #f5f8ff;  /* Light blue background for Card 1 */
+  }
+  
+  .card:nth-child(2) {
+    background-color: #e9f7ef;  /* Light green background for Card 2 */
+  }
+  
+  .card:nth-child(3) {
+    background-color: #fff3cd;  /* Light yellow background for Card 3 */
+  }
+  
+  /* Responsive Layout */
+  @media (max-width: 768px) {
+    .col-md-4 {
+      margin-bottom: 20px;
+    }
+  } 

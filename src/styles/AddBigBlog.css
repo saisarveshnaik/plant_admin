@@ -1,0 +1,43 @@
+/* Styles for the Add User page */
+.add-user-form {
+    background-color: #2c2f33;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    color: #fff;
+}
+
+.add-user-form label {
+    color: #fff;
+    font-weight: bold;
+    margin-top: 1rem; /* Adds space above each label */
+    display: block; /* Ensures the margin applies correctly */
+}
+
+.add-user-form .form-group {
+    margin-bottom: 1.5rem; /* Adds space below each input field */
+}
+
+.add-user-form .form-control {
+    background-color: #23272a;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.add-user-form .submit-btn {
+    background-color: #7289da;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    padding: 10px 16px;
+    margin-top: 1.5rem; /* Adds space above the submit button */
+    transition: background-color 0.3s, transform 0.2s;
+    border-radius: 4px;
+}
+
+.add-user-form .submit-btn:hover {
+    background-color: #5b6eae;
+    transform: scale(1.05);
+}

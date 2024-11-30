@@ -1,0 +1,70 @@
+/* src/styles/Navbar.css */
+.navbar {
+    background-color: #212631 !important;
+    padding: 0.5rem 2rem;
+    border-bottom: 1px solid #323A49;
+  }
+  
+  .navbar .btn{
+    border: none !important;
+  }
+  
+  .navbar-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .navbar .nav-icon {
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .navbar .nav-icon:hover {
+    color: #17a2b8;
+  }
+  
+  .navbar .navbar-link {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .navbar .navbar-link:hover {
+    color: #17a2b8; /* Highlight color on hover */
+  }
+  
+  /* Ensure the dropdown is aligned correctly */
+  .navbar .dropdown-menu {
+    right: 0;
+    left: auto;
+    min-width: 150px;
+    background-color: #212631; /* Set dropdown background color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navbar .dropdown-menu.show {
+    display: block; /* Ensure the dropdown appears when clicked */
+  }
+  
+  /* Optional: Style for dropdown items */
+  .navbar .dropdown-item {
+    font-size: 16px;
+    padding: 10px 15px;
+    color: white;
+  }
+  
+  .navbar .dropdown-item:hover {
+    background-color: #495057; /* Highlight on hover */
+  }
+  
+  /* Make the UserCircle icon twice the size */
+  .navbar .user-circle {
+    font-size: 40px;
+  }
+  
+  

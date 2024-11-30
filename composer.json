@@ -1,0 +1,15 @@
+{
+    "name": "lightx/smartrainmakers",
+    "autoload": {
+        "psr-4": {
+            "Lightx\\Smartrainmakers\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "saisarveshnaik",
+            "email": "saisarvesh.naik007@gmail.com"
+        }
+    ],
+    "require": {}
+}

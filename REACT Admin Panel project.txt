@@ -1,0 +1,60 @@
+Basics:
+npm install
+npm start
+npm run build
+vercel
+
+To push GitHub project to repo for the first time:
+git add .
+git commit -m "your commit message"
+git remote add origin https://github.com/username/repository-name.git
+git push -u origin master
+
+To push GitHub project to repo for the second time:
+git status
+git add .
+git commit -m "Your commit message"
+git push origin master
+
+vercel --prod
+
+
+
+https://coreui.io/demos/react/5.0/free/?theme=dark#/dashboard
+
+https://smartrainmakers-napnll41u-devanshu-joshis-projects.vercel.app/
+
+Today: Tried fixing wordpress theme, setting up of environment of react admin panel ui, created components sidebar,navbar,main-content and added packages.
+
+Tomorrow: Added collapsible sidebar, Dropdown links for sidebar, dropdown for user. 
+
+
+TODAYS TASK:
+---IN view users table ---- name/wallet , date joined, referer user name ,team , action view more button --In view more button popup will come and there will be email id,email      veriied, payout wallet, premium level, rainmaker level, total_earned
+--manage users same table as view users with edit button and in popup fields will be username,password,funds users wallet
+
+--IN trasnsaction table there will be usrename wallet, date, transaction hash, amount, type, view on BSC scan action button
+--Same table for withdrawals as transaction table 
+
+-- For add admin input fields will be username,email, password , confirm pass, submit btn, after Clicking on submit button there will be a popup to enter admin password input field and confirm password button below it.
+-- For add users similar fields as admin fields
+
+--...... In view teams there will be one dropdown and there will be two options for premium zone and rainmaker zone. Table will change accordingly. Fields will be username, wallet address, joining date and level 
+
+-- In view admin balance there will be $.0.00 and dropdown below this .Inside dropdown will have BNB and USDT
+-- For help and support table will come , fields are serial number, username, direct team, View message button..and there will be popup for view message.
+
+
+
+
+
+
+
+admin@example.com
+admin
+
+
+
+
+get in touch content in box
+
