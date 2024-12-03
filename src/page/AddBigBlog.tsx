@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import '../styles/AddBigBlog.css';
 import { Button, Form } from 'react-bootstrap';
+import ReactQuill from 'react-quill';  // Importing Quill editor
+import 'react-quill/dist/quill.snow.css'; // Import the Quill styles
 
 const AddBigBlog: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -28,12 +30,19 @@ const AddBigBlog: React.FC = () => {
     }));
   };
 
+  const handleDescriptionChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      description: value, // Updating the description with Quill editor value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     console.log("Form submitted!");  // Debugging step to confirm form submission
 
-    // Check if all fields are filled
+    // Check if all fields are filled, including description
     if (!formData.title || !formData.description || !formData.image) {
       setErrorMessage('All fields are required.');
       return;
@@ -93,21 +102,20 @@ const AddBigBlog: React.FC = () => {
             required
           />
         </div>
+
         <div className="form-group mt-3">
           <label htmlFor="description" className="form-label">
             Blog Description
           </label>
-          <textarea
+          {/* Replacing the textarea with Quill editor */}
+          <ReactQuill
             id="description"
-            name="description"
-            className="form-control"
-            placeholder="Enter blog description"
-            rows={4}
             value={formData.description}
-            onChange={handleChange}
-            required
-          ></textarea>
+            onChange={handleDescriptionChange}
+            placeholder="Enter blog description"
+          />
         </div>
+
         <div className="form-group mt-3">
           <label htmlFor="image" className="form-label">
             Blog Image
@@ -122,6 +130,7 @@ const AddBigBlog: React.FC = () => {
             required
           />
         </div>
+
         <button type="submit" className="btn btn-primary mt-4">
           Submit
         </button>
