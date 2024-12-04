@@ -18,7 +18,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setIsAuthenticated }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost/gamingpanda_admin/pages/login.php', {
+      const response = await axios.post('http://api.gamingpandastudios.com/api/login.php', {
         email,
         password,
       });
