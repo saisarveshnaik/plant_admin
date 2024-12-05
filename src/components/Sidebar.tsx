@@ -48,8 +48,8 @@ const Sidebar: React.FC<SidebarProps> = ({ handleLogout }) => {
 
 
       {/* Components Section with Collapsible */}
-      <h6 onClick={() => toggleSection('components')} className="sidebar-toggle">
-        ADD BLOGS {componentsOpen ? <FaChevronUp /> : <FaChevronDown />}
+      {/* <h6 onClick={() => toggleSection('components')} className="sidebar-toggle">
+        ADD/VIEW/DELETE BLOGS {componentsOpen ? <FaChevronUp /> : <FaChevronDown />}
       </h6>
       {componentsOpen && (
         <ul className="list-unstyled">
@@ -58,11 +58,34 @@ const Sidebar: React.FC<SidebarProps> = ({ handleLogout }) => {
               <FaCogs className="sidebar-icon" /> Add Big Blog
             </li>
           </Link>
-          <li className="sidebar-item mb-3" onClick={onLogoutClick}>
+          <Link to="/view-blogs">
+            <li className="sidebar-item mb-3">
+              <FaCogs className="sidebar-icon" /> View/Delete Blogs
+            </li>
+          </Link>
+        </ul>
+      )} */}
+
+      <ul className="list-unstyled">
+      <Link to="/add-big-blog">
+            <li className="sidebar-item mb-3">
+              <FaCogs className="sidebar-icon" /> Add Big Blog
+            </li>
+          </Link>
+          <Link to="/view-blogs">
+            <li className="sidebar-item mb-3">
+              <FaCogs className="sidebar-icon" /> View/Delete Blogs
+            </li>
+          </Link>
+      <Link to="/view-forms">
+            <li className="sidebar-item mb-3">
+              <FaCogs className="sidebar-icon" /> View/Delete Forms
+            </li>
+          </Link>
+      <li className="sidebar-item mb-3" onClick={onLogoutClick}>
             <FaCogs className="sidebar-icon" /> Logout
           </li>
-        </ul>
-      )}
+      </ul>
 
       <div className="sidebarfooter">
         <h6 className="smart">Gaming Panda Studios</h6>

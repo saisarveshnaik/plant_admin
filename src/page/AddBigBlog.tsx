@@ -56,7 +56,7 @@ const AddBigBlog: React.FC = () => {
 
     try {
       // Send POST request to PHP API
-      const response = await fetch('http://api.gamingpandastudios.com/api/addblog.php', {
+      const response = await fetch('https://api.gamingpandastudios.com/api/addblog.php', {
         method: 'POST',
         body: formDataToSend,
       });

@@ -9,6 +9,8 @@ import InfoCard from './components/InfoCard';
 import Table from './components/Table';
 import AddBigBlog from './page/AddBigBlog';
 import LoginPage from './page/LoginPage';
+import ViewBlogs from './page/ViewBlogs';
+import ViewForms from './page/ViewForms';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -61,6 +63,8 @@ const App: React.FC = () => {
                     }
                   />
                   <Route path="/add-big-blog" element={<AddBigBlog />} />
+                  <Route path="/view-blogs" element={<ViewBlogs />} />
+                  <Route path="/view-forms" element={<ViewForms />} />
                 </Routes>
               </div>
             </div>
