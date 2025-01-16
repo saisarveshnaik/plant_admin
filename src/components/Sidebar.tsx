@@ -1,16 +1,11 @@
-// Sidebar.tsx
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../styles/Sidebar.css';
-import { FaChartLine, FaCogs, FaEnvelope, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaChartLine, FaCogs, FaAngleDown, FaAngleUp } from 'react-icons/fa';
 
-interface SidebarProps {
-  handleLogout: () => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ handleLogout }) => {
-  const [themeOpen, setThemeOpen] = useState(true);
-  const [componentsOpen, setComponentsOpen] = useState(true);
+const Sidebar: React.FC = () => {
+  const [themeOpen, setThemeOpen] = useState(false); // Dropdown state for theme
+  const [componentsOpen, setComponentsOpen] = useState(false); // Dropdown state for components
 
   const toggleSection = (section: string) => {
     if (section === 'theme') {
@@ -18,13 +13,6 @@ const Sidebar: React.FC<SidebarProps> = ({ handleLogout }) => {
     } else if (section === 'components') {
       setComponentsOpen(!componentsOpen);
     }
-  };
-
-  const navigate = useNavigate();
-
-  const onLogoutClick = () => {
-    handleLogout();
-    navigate('/login'); // Redirect to login page
   };
 
   return (
@@ -41,55 +29,61 @@ const Sidebar: React.FC<SidebarProps> = ({ handleLogout }) => {
       <ul className="list-unstyled">
         <Link to="/">
           <li className="sidebar-item mb-3">
-            <FaChartLine className="sidebar-icon" /> Dashboard
+            <FaChartLine className="sidebar-icon" /> DASHBOARD
           </li>
         </Link>
-      </ul>
 
+                 {/* Dropdown for Theme */}
+        <li className="sidebar-item mb-3 dropdown" onClick={() => toggleSection('theme')}>
+          <div className="d-flex align-items-center">
+            <FaCogs className="sidebar-icon" /> Admin Roles
+            {themeOpen ? <FaAngleUp className="ml-2" /> : <FaAngleDown className="ml-2" />}
+          </div>
+          {themeOpen && (
+            <ul className="list-unstyled pl-3 sidebar-dropdown">
+              <Link to="/add-admin" >
+              <li className="sidebar-item">Add Admin</li>
+              </Link>
+              <Link to="/view-admin" >
+              <li className="sidebar-item">View/Delete Admin</li>
+              </Link>
+            </ul>
+          )}
+        </li> 
 
-      {/* Components Section with Collapsible */}
-      {/* <h6 onClick={() => toggleSection('components')} className="sidebar-toggle">
-        ADD/VIEW/DELETE BLOGS {componentsOpen ? <FaChevronUp /> : <FaChevronDown />}
-      </h6>
-      {componentsOpen && (
-        <ul className="list-unstyled">
-          <Link to="/add-big-blog">
-            <li className="sidebar-item mb-3">
-              <FaCogs className="sidebar-icon" /> Add Big Blog
-            </li>
-          </Link>
-          <Link to="/view-blogs">
-            <li className="sidebar-item mb-3">
-              <FaCogs className="sidebar-icon" /> View/Delete Blogs
-            </li>
-          </Link>
-        </ul>
-      )} */}
-
-      <ul className="list-unstyled">
-      <Link to="/add-big-blog">
-            <li className="sidebar-item mb-3">
-              <FaCogs className="sidebar-icon" /> Add Big Blog
-            </li>
-          </Link>
-          <Link to="/view-blogs">
-            <li className="sidebar-item mb-3">
-              <FaCogs className="sidebar-icon" /> View/Delete Blogs
-            </li>
-          </Link>
-      <Link to="/view-forms">
-            <li className="sidebar-item mb-3">
-              <FaCogs className="sidebar-icon" /> View/Delete Forms
-            </li>
-          </Link>
-      <li className="sidebar-item mb-3" onClick={onLogoutClick}>
-            <FaCogs className="sidebar-icon" /> Logout
+        <Link to="/view-users">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />User Details
           </li>
+        </Link>
+
+
+
+        {/* <li className="sidebar-item mb-3 dropdown" onClick={() => toggleSection('components')}>
+          <div className="d-flex align-items-center">
+            <FaCogs className="sidebar-icon" /> Components
+            {componentsOpen ? <FaAngleUp className="ml-2" /> : <FaAngleDown className="ml-2" />}
+          </div>
+          {componentsOpen && (
+            <ul className="list-unstyled pl-3 sidebar-dropdown">
+              <li className="sidebar-item">Button</li>
+              <li className="sidebar-item">Modal</li>
+            </ul>
+          )}
+        </li> */}
+
       </ul>
+
+
+      <img src='plant.png' className='plant' />
+      
 
       <div className="sidebarfooter">
-        <h6 className="smart">Gaming Panda Studios</h6>
+      <h6 className="smart">&copy; 2025 Gaming Panda Studios. All rights reserved.</h6>
       </div>
+      
+     
+
     </div>
   );
 };

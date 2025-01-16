@@ -1,0 +1,32 @@
+.form-inner{
+    background: #A5D6A7;
+    padding: 6px;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+.form-inner h1{
+    font-size: 25px;
+    color: #1B5E20;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.form-inner form{
+    background: #DAF7E1;
+    padding: 30px;
+}
+
+.form-inner form input{
+    border: 3px solid #A5D6A7;
+    margin-bottom: 20px;
+}
+
+.form-inner form button{
+    background: #4CAF50;
+}
+
+.form-inner form button:hover{
+    background: #1B5E20;
+}

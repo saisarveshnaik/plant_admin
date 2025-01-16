@@ -2,13 +2,13 @@
     display: none;
 }
 
+
 .sidebar {
-  background-color: #212631;
+  background-color: #A5D6A7;
   height: 100vh;
   width: 250px;
   color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid #323A49;
   position: fixed;
   left: 0;
   top: 0;
@@ -18,11 +18,17 @@
   overflow-x: hidden;
 }
 
+
+.sidebar-logo{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .logo-img{
   width: 40%;
   height: auto;
-  margin: 0 auto
-
+  margin: 0 auto;
 }
 
 .sidebar a {
@@ -49,17 +55,24 @@
 
 
 .sidebar-item {
-  font-size: 16px; /* Decreased font size */
+  text-transform: uppercase;
+  font-size: 14px; /* Decreased font size */
+  font-weight: 500;
   display: flex;
   align-items: center;
   padding: 8px 10px; /* Decreased padding */
   cursor: pointer;
+  background-color: #DAF7E1;
+  border-radius: 5px 5px 5px 5px;
+  color: #1B5E20;
   transition: background-color 0.3s ease-in-out;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 .sidebar-item:hover {
-  background-color: #495057;
-  border-radius: 5px;
+  background-color: #4CAF50;
+  border-radius: 5px 5px 5px 5px;
+  color: #ffffff;
 }
 
 .sidebar-icon {
@@ -68,11 +81,11 @@
 }
 
 .sidebar-item:first-child {
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .sidebar-item:last-child {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .sidebar-toggle {
@@ -91,12 +104,65 @@
   width: 100%;
   min-height: 10rem;
   height: 100%;
-
-  
 }
 
 .sidebarfooter h6{
   position: absolute;
   left: 0rem;
-  bottom: 0rem;
+  bottom: -10px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  color: #1B5E20;
+}
+
+
+
+
+/* Sidebar styles */
+.sidebar-item {
+  cursor: pointer;
+  position: relative; /* Ensure the dropdown content is positioned relative to the parent item */
+}
+
+.sidebar-item .sidebar-icon {
+  margin-right: 10px;
+}
+
+.sidebar-dropdown {
+  position: absolute; /* Position the dropdown below the parent item */
+  top: 100%; /* This ensures it appears below the item */
+  left: 0;
+  background-color: #1B5E20; /* Optional: Background for dropdown items */
+  border-radius: 0px 0px 10px 10px;
+  padding: 0px 5px;
+  width: 100%;
+  display: block;
+  z-index: 10; /* Make sure the dropdown appears above other content */
+}
+
+.sidebar-dropdown li {
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+
+/* Additional Fixes */
+.sidebar {
+  overflow: auto; /* Ensure that overflow does not break the layout */
+}
+
+.sidebar-item > .d-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Align the text and icon properly */
+}
+
+
+.plant{
+  position: absolute;
+  width: 100%;
+  bottom: 80px;
+  left: -40px;
+  z-index: -1;
 }

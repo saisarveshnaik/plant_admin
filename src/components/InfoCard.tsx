@@ -1,51 +1,118 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import '../styles/InfoCard.css';
 import { Link } from 'react-router-dom';
+import Last24hrUsers from './Last24hrUsers';
+import CountUp from './CountUp';
 
 const InfoCard: React.FC = () => {
-  const [totalBlogs, setTotalBlogs] = useState<number>(0); // State to store the total blogs count
-  const [error, setError] = useState<string | null>(null); // State to handle errors
-
-  useEffect(() => {
-    const fetchTotalBlogs = async () => {
-      try {
-        const response = await fetch("https://api.gamingpandastudios.com/api/fetch_blogs.php"); // Replace with your API URL
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setTotalBlogs(data.length); // Update state with total blogs
-      } catch (err) {
-        // Properly handle 'unknown' error type
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    };
-
-    fetchTotalBlogs();
-  }, []);
-
   return (
-    <div className="container">
+    <div className="cards-outer">
       <div className="row mt-4">
         {/* Card 1 */}
         <div className="col-md-3">
-          <div className="card shadow-sm">
+          <div className="card text-center">
             <div className="card-body card1">
-              <h5 className="card-title">{error ? "Error" : totalBlogs}</h5>
-              <p className="card-text">
-                {error ? error : "Total Blogs Added"}
-              </p>
+              <img src='icons/user.png' className='icon' />
+              <h5 className="card-title"><CountUp endNumber={23676} duration={3000} /></h5>
+              <p className="card-text">TOTAL USERS</p>
               <Link to="/add-big-blog">
-                <button className="btn btn-primary">Add More</button>
+                <button className="btn btn-primary">VIEW TOTAL USERS</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/user.png' className='icon' />
+              <h5 className="card-title"><CountUp endNumber={3455} duration={3000} /></h5>
+              <p className="card-text">Daily active users</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">VIEW ACTIVE USERS</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/downloads.png' className='icon' />
+              <h5 className="card-title"><CountUp endNumber={44567} duration={3000} /></h5>
+              <p className="card-text">Total Downloads</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">VIEW INFO</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/revenue.png' className='icon' />
+              <h5 className="card-title">₹<CountUp endNumber={887675} duration={3000} /></h5>
+              <p className="card-text">Android Revenue</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">View Info</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/revenue.png' className='icon' />
+              <h5 className="card-title">₹<CountUp endNumber={457675} duration={3000} /></h5>
+              <p className="card-text">IOS revenue</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">View Info</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/revenue.png' className='icon' />
+              <h5 className="card-title">₹<CountUp endNumber={4675} duration={3000} /></h5>
+              <p className="card-text">Daily Total Revenue</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">View Info</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/revenue.png' className='icon' />
+              <h5 className="card-title">₹<CountUp endNumber={9967675} duration={3000} /></h5>
+              <p className="card-text">Total Revenue</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">View Info</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card text-center">
+            <div className="card-body card1">
+            <img src='icons/leaderboard.png' className='icon' />
+              <h5 className="card-title">Leaderboard</h5>
+              <p className="card-text">Learders of the game</p>
+              <Link to="/add-big-blog">
+                <button className="btn btn-primary">View Leaderbord</button>
               </Link>
             </div>
           </div>
         </div>
       </div>
+
+    
+    <div className='users-table-div'>
+    <Last24hrUsers />
+    </div>
+
+
     </div>
   );
 };
