@@ -15,7 +15,7 @@ const InfoCard: React.FC = () => {
               <img src='icons/user.png' className='icon' />
               <h5 className="card-title"><CountUp endNumber={23676} duration={3000} /></h5>
               <p className="card-text">TOTAL USERS</p>
-              <Link to="/add-big-blog">
+              <Link to="/view-users">
                 <button className="btn btn-primary">VIEW TOTAL USERS</button>
               </Link>
             </div>
@@ -27,7 +27,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/user.png' className='icon' />
               <h5 className="card-title"><CountUp endNumber={3455} duration={3000} /></h5>
               <p className="card-text">Daily active users</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">VIEW ACTIVE USERS</button>
               </Link>
             </div>
@@ -39,7 +39,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/downloads.png' className='icon' />
               <h5 className="card-title"><CountUp endNumber={44567} duration={3000} /></h5>
               <p className="card-text">Total Downloads</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">VIEW INFO</button>
               </Link>
             </div>
@@ -51,7 +51,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/revenue.png' className='icon' />
               <h5 className="card-title">₹<CountUp endNumber={887675} duration={3000} /></h5>
               <p className="card-text">Android Revenue</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">View Info</button>
               </Link>
             </div>
@@ -63,7 +63,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/revenue.png' className='icon' />
               <h5 className="card-title">₹<CountUp endNumber={457675} duration={3000} /></h5>
               <p className="card-text">IOS revenue</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">View Info</button>
               </Link>
             </div>
@@ -75,7 +75,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/revenue.png' className='icon' />
               <h5 className="card-title">₹<CountUp endNumber={4675} duration={3000} /></h5>
               <p className="card-text">Daily Total Revenue</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">View Info</button>
               </Link>
             </div>
@@ -87,7 +87,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/revenue.png' className='icon' />
               <h5 className="card-title">₹<CountUp endNumber={9967675} duration={3000} /></h5>
               <p className="card-text">Total Revenue</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">View Info</button>
               </Link>
             </div>
@@ -99,7 +99,7 @@ const InfoCard: React.FC = () => {
             <img src='icons/leaderboard.png' className='icon' />
               <h5 className="card-title">Leaderboard</h5>
               <p className="card-text">Learders of the game</p>
-              <Link to="/add-big-blog">
+              <Link to="">
                 <button className="btn btn-primary">View Leaderbord</button>
               </Link>
             </div>
