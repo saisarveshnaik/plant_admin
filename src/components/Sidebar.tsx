@@ -57,6 +57,24 @@ const Sidebar: React.FC = () => {
           </li>
         </Link>
 
+        <Link to="/user-access">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />User Access
+          </li>
+        </Link>
+
+        <Link to="/transaction-details">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Transaction Details
+          </li>
+        </Link>
+
+        <Link to="/progression-config">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Progression Config
+          </li>
+        </Link>
+
 
 
         {/* <li className="sidebar-item mb-3 dropdown" onClick={() => toggleSection('components')}>

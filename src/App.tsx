@@ -10,6 +10,9 @@ import LoginPage from './page/LoginPage';
 import AddAdmin from './page/AddAdmin';
 import ViewAdmin from './page/ViewAdmin';
 import ViewUsers from './page/ViewUsers';
+import UserAccess from './page/UserAccess';
+import TransactionDetails from './page/TransactionDetails';
+import ProgressionConfig from './page/ProgressionConfig';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -46,6 +49,9 @@ const App: React.FC = () => {
                     <Route path="/add-admin" element={<AddAdmin />} />
                     <Route path="/view-admin" element={<ViewAdmin />} />
                     <Route path="/view-users" element={<ViewUsers />} />
+                    <Route path="/user-access" element={<UserAccess />} />
+                    <Route path="/transaction-details" element={<TransactionDetails />} />
+                    <Route path="/progression-config" element={<ProgressionConfig />} />
                   </Routes>
                 </div>
               </div>
