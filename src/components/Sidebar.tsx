@@ -47,6 +47,9 @@ const Sidebar: React.FC = () => {
               <Link to="/view-admin" >
               <li className="sidebar-item">View/Delete Admin</li>
               </Link>
+              <Link to="/user-access">
+              <li className="sidebar-item"> User Access</li>
+              </Link>
             </ul>
           )}
         </li> 
@@ -54,12 +57,6 @@ const Sidebar: React.FC = () => {
         <Link to="/view-users">
           <li className="sidebar-item mb-3">
             <FaCogs className="sidebar-icon" />User Details
-          </li>
-        </Link>
-
-        <Link to="/user-access">
-          <li className="sidebar-item mb-3">
-            <FaCogs className="sidebar-icon" />User Access
           </li>
         </Link>
 
@@ -75,20 +72,32 @@ const Sidebar: React.FC = () => {
           </li>
         </Link>
 
+        <Link to="/daily-rewards-config">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Daily Rewards Config
+          </li>
+        </Link>
+
+        <Link to="/spinwheel">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Spin Wheel
+          </li>
+        </Link>
 
 
-        {/* <li className="sidebar-item mb-3 dropdown" onClick={() => toggleSection('components')}>
+
+        <li className="sidebar-item mb-3 dropdown" onClick={() => toggleSection('components')}>
           <div className="d-flex align-items-center">
-            <FaCogs className="sidebar-icon" /> Components
+            <FaCogs className="sidebar-icon" /> Task/Mission
             {componentsOpen ? <FaAngleUp className="ml-2" /> : <FaAngleDown className="ml-2" />}
           </div>
           {componentsOpen && (
             <ul className="list-unstyled pl-3 sidebar-dropdown">
-              <li className="sidebar-item">Button</li>
-              <li className="sidebar-item">Modal</li>
+              <Link to="/daily-tasks"><li className="sidebar-item">Daily Tasks</li></Link>
+              <Link to="/achievements"><li className="sidebar-item">Achievements</li></Link>
             </ul>
           )}
-        </li> */}
+        </li>
 
       </ul>
 

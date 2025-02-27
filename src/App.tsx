@@ -13,6 +13,10 @@ import ViewUsers from './page/ViewUsers';
 import UserAccess from './page/UserAccess';
 import TransactionDetails from './page/TransactionDetails';
 import ProgressionConfig from './page/ProgressionConfig';
+import DailyRewards from './page/DailyRewardConfig';
+import SpinWheel from './page/SpinWheel';
+import DailyTasks from './page/DailyTasks';
+import Achievements from './page/Achievements';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -52,6 +56,10 @@ const App: React.FC = () => {
                     <Route path="/user-access" element={<UserAccess />} />
                     <Route path="/transaction-details" element={<TransactionDetails />} />
                     <Route path="/progression-config" element={<ProgressionConfig />} />
+                    <Route path="/daily-rewards-config" element={<DailyRewards />} />
+                    <Route path="/spinwheel" element={<SpinWheel />} />
+                    <Route path="/daily-tasks" element={<DailyTasks />} />
+                    <Route path="/achievements" element={<Achievements />} />
                   </Routes>
                 </div>
               </div>

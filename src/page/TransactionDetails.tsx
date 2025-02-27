@@ -8,8 +8,9 @@ const TransactionDetails: React.FC = () => {
         <div className="card-body">
           <h5 className="card-title mb-4">Transaction Details</h5>
           <div className="row align-items-center mb-4">
-            <div className="col-md-3">
-              <select className="form-control">
+            <div className="col-md-2">
+              <label>Select Country:</label>
+              <select className="form-control form-select">
                 <option value="">Country</option>
                 <option value="USA">USA</option>
                 <option value="India">India</option>
@@ -18,6 +19,7 @@ const TransactionDetails: React.FC = () => {
             </div>
 
             <div className="col-md-3">
+            <label>Search Filter:</label>
               <input
                 type="text"
                 className="form-control"
@@ -28,7 +30,15 @@ const TransactionDetails: React.FC = () => {
               </small> */}
             </div>
 
-            <div className="col-md-6 justify-content-end">
+            <div className="col-md-3">
+              <label>Select Platform:</label>
+              <select className="form-control form-select">
+                <option value="android">Android</option>
+                <option value="ios">IOS</option>
+              </select>
+            </div>
+
+            <div className="col-md-4 justify-content-end">
               <div className="btn-group">
                 <button className="btn btn-outline-secondary">Days</button>
                 <button className="btn btn-outline-secondary">Months</button>
