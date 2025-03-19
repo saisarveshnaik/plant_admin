@@ -17,6 +17,7 @@ import DailyRewards from './page/DailyRewardConfig';
 import SpinWheel from './page/SpinWheel';
 import DailyTasks from './page/DailyTasks';
 import Achievements from './page/Achievements';
+import PlantConfig from './page/PlantConfig';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -60,6 +61,7 @@ const App: React.FC = () => {
                     <Route path="/spinwheel" element={<SpinWheel />} />
                     <Route path="/daily-tasks" element={<DailyTasks />} />
                     <Route path="/achievements" element={<Achievements />} />
+                    <Route path="/plant-config" element={<PlantConfig />} />
                   </Routes>
                 </div>
               </div>

@@ -38,14 +38,14 @@ const InfoCard: React.FC = () => {
             <div className="card-body card1">
             <img src='icons/downloads.png' className='icon' />
               <h5 className="card-title"><CountUp endNumber={44567} duration={3000} /></h5>
-              <p className="card-text">Total Downloads</p>
+              <p className="card-text">Total Revenue</p>
               <Link to="">
                 <button className="btn btn-primary">VIEW INFO</button>
               </Link>
             </div>
           </div>
         </div>
-        <div className="col-md-3">
+        {/* <div className="col-md-3">
           <div className="card text-center">
             <div className="card-body card1">
             <img src='icons/revenue.png' className='icon' />
@@ -56,8 +56,8 @@ const InfoCard: React.FC = () => {
               </Link>
             </div>
           </div>
-        </div>
-        <div className="col-md-3">
+        </div> */}
+        {/* <div className="col-md-3">
           <div className="card text-center">
             <div className="card-body card1">
             <img src='icons/revenue.png' className='icon' />
@@ -68,8 +68,8 @@ const InfoCard: React.FC = () => {
               </Link>
             </div>
           </div>
-        </div>
-        <div className="col-md-3">
+        </div> */}
+        {/* <div className="col-md-3">
           <div className="card text-center">
             <div className="card-body card1">
             <img src='icons/revenue.png' className='icon' />
@@ -80,8 +80,8 @@ const InfoCard: React.FC = () => {
               </Link>
             </div>
           </div>
-        </div>
-        <div className="col-md-3">
+        </div> */}
+        {/* <div className="col-md-3">
           <div className="card text-center">
             <div className="card-body card1">
             <img src='icons/revenue.png' className='icon' />
@@ -92,8 +92,8 @@ const InfoCard: React.FC = () => {
               </Link>
             </div>
           </div>
-        </div>
-        <div className="col-md-3">
+        </div> */}
+        {/* <div className="col-md-3">
           <div className="card text-center">
             <div className="card-body card1">
             <img src='icons/leaderboard.png' className='icon' />
@@ -104,7 +104,7 @@ const InfoCard: React.FC = () => {
               </Link>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
     

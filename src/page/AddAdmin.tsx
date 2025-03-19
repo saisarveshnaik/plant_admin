@@ -17,7 +17,7 @@ const AddAdmin: React.FC = () => {
       <form>
 
         <div className='row'>
-          <div className='col-md-4'>
+          <div className='col-md-6'>
           <div className="form-group">
           <label htmlFor="full_name" className="form-label">
             Full Name:
@@ -31,7 +31,7 @@ const AddAdmin: React.FC = () => {
           />
         </div>
           </div>
-          <div className='col-md-4'>
+          <div className='col-md-6'>
           <div className="form-group">
           <label htmlFor="email_address" className="form-label">
           Email Address:
@@ -45,7 +45,7 @@ const AddAdmin: React.FC = () => {
           />
         </div>
           </div>
-          <div className='col-md-4'>
+          <div className='col-md-6'>
           <div className="form-group">
           <label htmlFor="phone_number" className="form-label">
           Phone Number:
@@ -59,7 +59,7 @@ const AddAdmin: React.FC = () => {
           />
         </div>
           </div>
-          <div className='col-md-4'>
+          {/* <div className='col-md-4'>
           <div className="form-group">
           <label htmlFor="username" className="form-label">
           Username:
@@ -72,8 +72,8 @@ const AddAdmin: React.FC = () => {
             placeholder="Enter username"
           />
         </div>
-          </div>
-          <div className='col-md-4'>
+          </div> */}
+          <div className='col-md-6'>
           <div className="form-group">
           <label htmlFor="password" className="form-label">
           Password:
@@ -87,7 +87,7 @@ const AddAdmin: React.FC = () => {
           />
         </div>
           </div>
-          <div className='col-md-4'>
+          {/* <div className='col-md-4'>
           <div className="form-group">
           <label htmlFor="confirm_password" className="form-label">
           Confirm Password:
@@ -100,7 +100,7 @@ const AddAdmin: React.FC = () => {
             placeholder="Re-enter password"
           />
         </div>
-          </div>
+          </div> */}
         </div>
         
 

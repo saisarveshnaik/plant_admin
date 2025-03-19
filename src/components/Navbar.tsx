@@ -19,7 +19,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
       <button onClick={toggleSidebar} className="btn btn-outline-light me-3">
         ☰ {/* Collapse button */}
       </button>
-      <span className="navbar-brand">DASHBOARD</span>
+      <span className="navbar-brand">ADMIN</span>
 
       {/* Right-aligned Links */}
       <div className="ml-auto d-flex align-items-center ms-auto">

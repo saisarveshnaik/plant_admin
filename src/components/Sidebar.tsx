@@ -99,6 +99,12 @@ const Sidebar: React.FC = () => {
           )}
         </li>
 
+        <Link to="/plant-config">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Plant Config
+          </li>
+        </Link>
+
       </ul>
 
 
