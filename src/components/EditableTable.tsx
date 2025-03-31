@@ -2,11 +2,6 @@ import React, { useState, ChangeEvent } from 'react';
 import {
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
   IconButton,
   InputLabel,
   MenuItem,
@@ -23,8 +18,10 @@ import {
   TableRow,
   TextField,
   Typography,
+  FormControl,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import BlockIcon from '@mui/icons-material/Block'; // For Ban Player button
 
 // Define a type for a player (update the fields as needed)
 interface Player {
@@ -78,108 +75,159 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-interface EditPlayerDialogProps {
-  open: boolean;
-  player: Player | null;
-  onClose: () => void;
+interface EditPlayerPageProps {
+  player: Player;
   onSave: (player: Player) => void;
+  onCancel: () => void;
 }
 
-const EditPlayerDialog: React.FC<EditPlayerDialogProps> = ({ open, player, onClose, onSave }) => {
+const EditPlayerPage: React.FC<EditPlayerPageProps> = ({ player, onSave, onCancel }) => {
   // Maintain local state for the editing player details
-  const [editPlayer, setEditPlayer] = useState<Player | null>(player);
+  const [editPlayer, setEditPlayer] = useState<Player>(player);
   const [tabIndex, setTabIndex] = useState(0);
-
-  // Update state when the passed "player" prop changes
-  React.useEffect(() => {
-    setEditPlayer(player);
-  }, [player]);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (editPlayer) {
-      setEditPlayer({ ...editPlayer, [e.target.name]: e.target.value });
-    }
+    // For Home tab, do not allow editing.
+    if (tabIndex === 0) return;
+    setEditPlayer({ ...editPlayer, [e.target.name]: e.target.value });
   };
 
   // Handle saving the changes
   const handleSave = () => {
-    if (editPlayer) {
-      onSave(editPlayer);
-    }
+    onSave(editPlayer);
   };
 
-  if (!editPlayer) return null;
-
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Edit Player</DialogTitle>
-      <DialogContent>
-        <Tabs value={tabIndex} onChange={handleTabChange} aria-label="Edit player tabs">
-          <Tab label="Home" />
-          <Tab label="KYC Player" />
-          <Tab label="Bank Details" />
-          <Tab label="Notification" />
-        </Tabs>
-        {/* Home Tab */}
-        <TabPanel value={tabIndex} index={0}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              name="playerId"
-              label="Player ID"
-              value={editPlayer.playerId}
-              onChange={handleChange}
-              fullWidth
-              InputProps={{ readOnly: true }}
-            />
-            <TextField name="name" label="Player Name" value={editPlayer.name} onChange={handleChange} fullWidth />
-            <TextField name="email" label="Email" value={editPlayer.email} onChange={handleChange} fullWidth />
-            <TextField name="mobile" label="Mobile Number" value={editPlayer.mobile} onChange={handleChange} fullWidth />
-          </Box>
-        </TabPanel>
-        {/* KYC Player Tab */}
-        <TabPanel value={tabIndex} index={1}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField name="kycStatus" label="KYC Status" value={editPlayer.kycStatus} onChange={handleChange} fullWidth />
-            {/* Add any additional fields as per the original UI */}
-            <TextField name="kycDocumentNumber" label="KYC Document Number" onChange={handleChange} fullWidth />
-            <TextField name="kycDocumentType" label="KYC Document Type" onChange={handleChange} fullWidth />
-          </Box>
-        </TabPanel>
-        {/* Bank Details Tab */}
-        <TabPanel value={tabIndex} index={2}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField name="bankName" label="Bank Name" onChange={handleChange} fullWidth />
-            <TextField name="accountNumber" label="Account Number" onChange={handleChange} fullWidth />
-            <TextField name="ifscCode" label="IFSC Code" onChange={handleChange} fullWidth />
-          </Box>
-        </TabPanel>
-        {/* Notification Tab */}
-        <TabPanel value={tabIndex} index={3}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField name="notificationEmail" label="Notification Email" onChange={handleChange} fullWidth />
-            <TextField name="notificationPhone" label="Notification Phone" onChange={handleChange} fullWidth />
-            <TextField name="notificationStatus" label="Notification Status" onChange={handleChange} fullWidth />
-          </Box>
-        </TabPanel>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Edit Player
+      </Typography>
+      <Tabs value={tabIndex} onChange={handleTabChange} aria-label="Edit player tabs">
+        <Tab label="Home" />
+        <Tab label="KYC Player" />
+        <Tab label="Bank Details" />
+        <Tab label="Notification" />
+      </Tabs>
+      {/* Home Tab (Read-only) */}
+      <TabPanel value={tabIndex} index={0}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            name="playerId"
+            label="Player ID"
+            value={editPlayer.playerId}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            name="name"
+            label="Player Name"
+            value={editPlayer.name}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            name="email"
+            label="Email"
+            value={editPlayer.email}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            name="mobile"
+            label="Mobile Number"
+            value={editPlayer.mobile}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+        </Box>
+      </TabPanel>
+      {/* KYC Player Tab */}
+      <TabPanel value={tabIndex} index={1}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            name="kycStatus"
+            label="KYC Status"
+            value={editPlayer.kycStatus}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="kycDocumentNumber"
+            label="KYC Document Number"
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="kycDocumentType"
+            label="KYC Document Type"
+            onChange={handleChange}
+            fullWidth
+          />
+        </Box>
+      </TabPanel>
+      {/* Bank Details Tab */}
+      <TabPanel value={tabIndex} index={2}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            name="bankName"
+            label="Bank Name"
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="accountNumber"
+            label="Account Number"
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="ifscCode"
+            label="IFSC Code"
+            onChange={handleChange}
+            fullWidth
+          />
+        </Box>
+      </TabPanel>
+      {/* Notification Tab */}
+      <TabPanel value={tabIndex} index={3}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            name="notificationEmail"
+            label="Notification Email"
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="notificationPhone"
+            label="Notification Phone"
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="notificationStatus"
+            label="Notification Status"
+            onChange={handleChange}
+            fullWidth
+          />
+        </Box>
+      </TabPanel>
+      <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+        <Button onClick={onCancel}>Back</Button>
         <Button onClick={handleSave} variant="contained" color="primary">
           Save
         </Button>
-      </DialogActions>
-    </Dialog>
+      </Box>
+    </Box>
   );
 };
 
 const PlayerList: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>(initialData);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [kycFilter, setKycFilter] = useState('All');
   const [deviceFilter, setDeviceFilter] = useState('All');
@@ -210,23 +258,37 @@ const PlayerList: React.FC = () => {
   });
 
   const handleEditClick = (player: Player) => {
-    setSelectedPlayer(player);
-    setEditDialogOpen(true);
+    setEditingPlayer(player);
   };
 
   const handleDeleteClick = (id: number) => {
     setPlayers(players.filter((p) => p.id !== id));
   };
 
-  const handleDialogClose = () => {
-    setSelectedPlayer(null);
-    setEditDialogOpen(false);
+  const handleBanClick = (id: number) => {
+    // Implement ban logic here. For example, update the player's status or remove from the list.
+    console.log(`Ban player with id ${id}`);
   };
 
-  const handleDialogSave = (updatedPlayer: Player) => {
+  const handleSaveEdit = (updatedPlayer: Player) => {
     setPlayers(players.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p)));
-    handleDialogClose();
+    setEditingPlayer(null);
   };
+
+  const handleCancelEdit = () => {
+    setEditingPlayer(null);
+  };
+
+  // If an editing player is selected, render the edit page instead of the list.
+  if (editingPlayer) {
+    return (
+      <EditPlayerPage
+        player={editingPlayer}
+        onSave={handleSaveEdit}
+        onCancel={handleCancelEdit}
+      />
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -285,6 +347,7 @@ const PlayerList: React.FC = () => {
               <TableCell>KYC Status</TableCell>
               <TableCell>Registered Date</TableCell>
               <TableCell align="center">Actions</TableCell>
+              <TableCell align="center">Ban</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -305,11 +368,16 @@ const PlayerList: React.FC = () => {
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
+                <TableCell align="center">
+                  <IconButton onClick={() => handleBanClick(player.id)}>
+                    <BlockIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
             {filteredPlayers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} align="center">
+                <TableCell colSpan={9} align="center">
                   No players found.
                 </TableCell>
               </TableRow>
@@ -317,14 +385,6 @@ const PlayerList: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Edit Player Dialog */}
-      <EditPlayerDialog
-        open={editDialogOpen}
-        player={selectedPlayer}
-        onClose={handleDialogClose}
-        onSave={handleDialogSave}
-      />
     </Box>
   );
 };
