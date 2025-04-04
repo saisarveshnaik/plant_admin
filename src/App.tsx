@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import InfoCard from './components/InfoCard';
 import LoginPage from './page/LoginPage';
+import SignupPage from './page/SignupPage';
 import AddAdmin from './page/AddAdmin';
 import ViewAdmin from './page/ViewAdmin';
 import ViewUsers from './page/ViewUsers';
@@ -18,6 +19,8 @@ import SpinWheel from './page/SpinWheel';
 import DailyTasks from './page/DailyTasks';
 import Achievements from './page/Achievements';
 import PlantConfig from './page/PlantConfig';
+import OfferConfig from './page/OfferConfig';
+import Logout from "./page/Logout";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -31,6 +34,7 @@ const App: React.FC = () => {
       <Routes>
         {/* Login Page Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
         {/* Other Pages */}
         <Route
@@ -62,6 +66,8 @@ const App: React.FC = () => {
                     <Route path="/daily-tasks" element={<DailyTasks />} />
                     <Route path="/achievements" element={<Achievements />} />
                     <Route path="/plant-config" element={<PlantConfig />} />
+                    <Route path="/offer-config" element={<OfferConfig />} />
+                    <Route path="/logout" element={<Logout />} />
                   </Routes>
                 </div>
               </div>

@@ -105,6 +105,18 @@ const Sidebar: React.FC = () => {
           </li>
         </Link>
 
+        <Link to="/offer-config">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Offer Config
+          </li>
+        </Link>
+
+        <Link to="/logout">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Logout
+          </li>
+        </Link>
+
       </ul>
 
 

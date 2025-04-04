@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Last24hrUsers from './Last24hrUsers';
 import CountUp from './CountUp';
 import '../styles/InfoCard.css';
@@ -112,6 +113,14 @@ const DailyRevenueGraph: React.FC = () => {
 };
 
 const InfoCard: React.FC = () => {
+  
+  const token = localStorage.getItem('authToken');
+
+  // If the token is not present, redirect to /login
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <div className="cards-outer">
       <div className="row mt-4">
