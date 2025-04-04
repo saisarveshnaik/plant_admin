@@ -17,14 +17,6 @@ interface DailyReward {
 const API_BASE = 'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/daily-reward';
 
 const DailyRewards: React.FC = () => {
-
-    const tok = localStorage.getItem('authToken');
-  
-    // If the token is not present, redirect to /login
-    if (!tok) {
-      return <Navigate to="/login" replace />;
-    }
-
   const [dailyRewards, setDailyRewards] = useState<DailyReward[]>([]);
   const [newReward, setNewReward] = useState<DailyReward>({
     day_No: 1,
@@ -33,41 +25,50 @@ const DailyRewards: React.FC = () => {
     img: '',
   });
   const [editReward, setEditReward] = useState<{ [key: string]: DailyReward }>({});
-
-  // Loading states for buttons:
   const [adding, setAdding] = useState<boolean>(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [redirectToLogin, setRedirectToLogin] = useState(false);
 
   const token = localStorage.getItem('authToken') || '';
+
+  useEffect(() => {
+    if (!token) {
+      setRedirectToLogin(true);
+      return;
+    }
+
+    const fetchDailyRewards = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/get-daily-reward`, {
+          headers: {
+            'Content-Type': 'application/json',
+            token,
+          },
+        });
+        if (response.data.status) {
+          setDailyRewards(response.data.data);
+        } else {
+          toast.error(`Fetch Error: ${response.data.message}`);
+        }
+      } catch (error) {
+        toast.error('Error fetching daily rewards');
+      }
+    };
+
+    fetchDailyRewards();
+  }, [token]);
+
+  if (redirectToLogin) {
+    return <Navigate to="/login" replace />;
+  }
 
   const axiosConfig = {
     headers: {
       'Content-Type': 'application/json',
-      token: token,
+      token,
     },
   };
-
-  // Fetch rewards from API.
-  const fetchDailyRewards = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/get-daily-reward`, axiosConfig);
-      if (response.data.status) {
-        setDailyRewards(response.data.data);
-      } else {
-        console.error('Failed to fetch daily rewards:', response.data.message);
-        toast.error(`Fetch Error: ${response.data.message}`);
-      }
-    } catch (error) {
-      console.error('Error fetching daily rewards:', error);
-      toast.error('Error fetching daily rewards');
-    }
-  };
-
-  useEffect(() => {
-    fetchDailyRewards();
-    // eslint-disable-next-line
-  }, []);
 
   const handleNewRewardChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -87,14 +88,11 @@ const DailyRewards: React.FC = () => {
         setNewReward({ day_No: 1, reward_type: 0, reward_value: '', img: '' });
         toast.success('Reward added successfully');
       } else {
-        console.error('Failed to add reward:', response.data.message);
         toast.error(`Add Error: ${response.data.message}`);
       }
     } catch (error) {
-      console.error('Error adding reward:', error);
       toast.error('Error adding reward');
     }
-    // Keep the "Adding Reward..." text visible for 1.5 sec before reverting.
     setTimeout(() => setAdding(false), 1500);
   };
 
@@ -105,7 +103,6 @@ const DailyRewards: React.FC = () => {
     setEditReward(prev => ({
       ...prev,
       [id]: {
-        _id: currentItem._id, // preserve the _id
         ...currentItem,
         ...prev[id],
         [name]: (name === 'day_No' || name === 'reward_type') ? Number(value) : value,
@@ -113,16 +110,14 @@ const DailyRewards: React.FC = () => {
     }));
   };
 
-  // Update reward using POST (as required).
   const handleUpdateReward = async (reward: DailyReward) => {
-    if (!reward._id) {
-      console.error('Reward id is missing.');
-      return;
-    }
+    if (!reward._id) return;
+
     setUpdatingId(reward._id);
+
     const payload = {
-      day_No: Number(reward.day_No),
-      reward_type: Number(reward.reward_type),
+      day_No: reward.day_No,
+      reward_type: reward.reward_type,
       reward_value: reward.reward_value,
       img: reward.img,
     };
@@ -140,16 +135,12 @@ const DailyRewards: React.FC = () => {
         });
         toast.success('Reward updated successfully');
       } else {
-        console.error('Failed to update reward:', response.data.message);
         toast.error(`Update Error: ${response.data.message}`);
       }
-    } catch (error: any) {
-      console.error('Error updating reward:', error);
-      if (error.response) {
-        console.error('Server response:', error.response.data);
-      }
+    } catch (error) {
       toast.error('Error updating reward');
     }
+
     setTimeout(() => setUpdatingId(null), 1500);
   };
 
@@ -161,11 +152,9 @@ const DailyRewards: React.FC = () => {
         setDailyRewards(prev => prev.filter(item => item._id !== id));
         toast.success('Reward deleted successfully');
       } else {
-        console.error('Failed to delete reward:', response.data.message);
         toast.error(`Delete Error: ${response.data.message}`);
       }
     } catch (error) {
-      console.error('Error deleting reward:', error);
       toast.error('Error deleting reward');
     }
     setTimeout(() => setDeletingId(null), 1500);
