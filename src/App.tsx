@@ -20,6 +20,7 @@ import DailyTasks from './page/DailyTasks';
 import Achievements from './page/Achievements';
 import PlantConfig from './page/PlantConfig';
 import OfferConfig from './page/OfferConfig';
+import PuzzleConfig from './page/PuzzleConfig';
 import Logout from "./page/Logout";
 
 const App: React.FC = () => {
@@ -67,6 +68,7 @@ const App: React.FC = () => {
                     <Route path="/achievements" element={<Achievements />} />
                     <Route path="/plant-config" element={<PlantConfig />} />
                     <Route path="/offer-config" element={<OfferConfig />} />
+                    <Route path="/puzzle-config" element={<PuzzleConfig />} />
                     <Route path="/logout" element={<Logout />} />
                   </Routes>
                 </div>

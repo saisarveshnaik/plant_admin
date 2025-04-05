@@ -111,6 +111,12 @@ const Sidebar: React.FC = () => {
           </li>
         </Link>
 
+        <Link to="/puzzle-config">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Puzzle Config
+          </li>
+        </Link>
+
         <Link to="/logout">
           <li className="sidebar-item mb-3">
             <FaCogs className="sidebar-icon" />Logout
