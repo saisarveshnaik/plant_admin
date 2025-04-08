@@ -21,6 +21,17 @@ import Achievements from './page/Achievements';
 import PlantConfig from './page/PlantConfig';
 import OfferConfig from './page/OfferConfig';
 import PuzzleConfig from './page/PuzzleConfig';
+
+
+import GameVersion from './page/GameVersion';
+import GameSettings from './page/GameSettings';
+import PlayerPlant from './page/PlayerPlant';
+import GiftBox from './page/GiftBox';
+import FreeAdRewards from './page/FreeAdRewards';
+import SocialRewards from './page/SocialRewards';
+import LevelCompleteRewards from './page/LevelCompleteRewards';
+import InAppPurchase from './page/InAppPurchase';
+
 import Logout from "./page/Logout";
 
 const App: React.FC = () => {
@@ -69,6 +80,14 @@ const App: React.FC = () => {
                     <Route path="/plant-config" element={<PlantConfig />} />
                     <Route path="/offer-config" element={<OfferConfig />} />
                     <Route path="/puzzle-config" element={<PuzzleConfig />} />
+                    <Route path="/game-version" element={<GameVersion />} />
+                    <Route path="/game-settings" element={<GameSettings />} />
+                    <Route path="/player-plant" element={<PlayerPlant />} />
+                    <Route path="/gift-box" element={<GiftBox />} />
+                    <Route path="/free-ad-rewards" element={<FreeAdRewards />} />
+                    <Route path="/social-rewards" element={<SocialRewards />} />
+                    <Route path="/level-complete-rewards" element={<LevelCompleteRewards />} />
+                    <Route path="/in-app-purchase" element={<InAppPurchase />} />
                     <Route path="/logout" element={<Logout />} />
                   </Routes>
                 </div>
