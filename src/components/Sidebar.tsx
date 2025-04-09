@@ -176,6 +176,12 @@ const Sidebar: React.FC = () => {
           </li>
         </Link>
 
+        <Link to="/in-app-purchase-history">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />In App Purchase History
+          </li>
+        </Link>
+
         <Link to="/logout">
           <li className="sidebar-item mb-3">
             <FaCogs className="sidebar-icon" />Logout

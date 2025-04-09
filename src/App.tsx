@@ -31,6 +31,7 @@ import FreeAdRewards from './page/FreeAdRewards';
 import SocialRewards from './page/SocialRewards';
 import LevelCompleteRewards from './page/LevelCompleteRewards';
 import InAppPurchase from './page/InAppPurchase';
+import InAppPurchaseHistory from './page/InAppPurchaseHistory';
 
 import Logout from "./page/Logout";
 
@@ -88,6 +89,7 @@ const App: React.FC = () => {
                     <Route path="/social-rewards" element={<SocialRewards />} />
                     <Route path="/level-complete-rewards" element={<LevelCompleteRewards />} />
                     <Route path="/in-app-purchase" element={<InAppPurchase />} />
+                    <Route path="/in-app-purchase-history" element={<InAppPurchaseHistory />} />
                     <Route path="/logout" element={<Logout />} />
                   </Routes>
                 </div>
