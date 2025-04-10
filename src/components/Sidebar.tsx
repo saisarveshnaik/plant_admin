@@ -182,6 +182,12 @@ const Sidebar: React.FC = () => {
           </li>
         </Link>
 
+        <Link to="/achievement-collect">
+          <li className="sidebar-item mb-3">
+            <FaCogs className="sidebar-icon" />Achievement Collect
+          </li>
+        </Link>
+
         <Link to="/logout">
           <li className="sidebar-item mb-3">
             <FaCogs className="sidebar-icon" />Logout
