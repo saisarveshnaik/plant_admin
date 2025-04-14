@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Endpoints from '../endpoints';
 
 interface LevelData {
   _id: string;
@@ -85,7 +86,7 @@ const LevelCompleteRewards: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/level/get-level',
+        Endpoints.LevelCompleteRewards.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {
@@ -133,7 +134,7 @@ const LevelCompleteRewards: React.FC = () => {
     setAdding(true);
     try {
       const response = await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/level/add-level',
+        Endpoints.LevelCompleteRewards.ADD,
         newLevel,
         { headers: { token: token || '' } }
       );
@@ -207,8 +208,7 @@ const LevelCompleteRewards: React.FC = () => {
     if (!editingId) return;
     setUpdatingId(editingId);
     try {
-      const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/level/update-level/${editingId}`;
-      const response = await axios.post(updateUrl, editData, { headers: { token: token || '' } });
+      const response = await axios.post(Endpoints.LevelCompleteRewards.UPDATE(editingId), editData, { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Level reward updated successfully!');
         // Update the record locally.
@@ -233,8 +233,7 @@ const LevelCompleteRewards: React.FC = () => {
   const handleDeleteLevel = async (id: string) => {
     setDeletingId(id);
     try {
-      const deleteUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/level/delete-level/${id}`;
-      const response = await axios.delete(deleteUrl, { headers: { token: token || '' } });
+      const response = await axios.delete(Endpoints.LevelCompleteRewards.DELETE(id), { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Level reward deleted successfully!');
         // Remove the record from local state.

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Endpoints from '../endpoints';
 
 interface GiftBoxData {
   _id: string;
@@ -71,7 +72,7 @@ const GiftBox: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/gift-box/get-gift-box',
+        Endpoints.GiftBox.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {
@@ -117,7 +118,7 @@ const GiftBox: React.FC = () => {
     setAdding(true);
     try {
       const response = await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/gift-box/add-gift-box',
+        Endpoints.GiftBox.ADD,
         newGift,
         { headers: { token: token || '' } }
       );
@@ -173,8 +174,7 @@ const GiftBox: React.FC = () => {
     if (!editingId) return;
     setUpdatingId(editingId);
     try {
-      const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/gift-box/update-gift-box/${editingId}`;
-      const response = await axios.post(updateUrl, editData, { headers: { token: token || '' } });
+      const response = await axios.post(Endpoints.GiftBox.UPDATE(editingId), editData, { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Gift box updated successfully!');
         // Update local state by replacing the updated record.
@@ -199,8 +199,7 @@ const GiftBox: React.FC = () => {
   const handleDeleteGift = async (id: string) => {
     setDeletingId(id);
     try {
-      const deleteUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/gift-box/delete-gift-box/${id}`;
-      const response = await axios.delete(deleteUrl, { headers: { token: token || '' } });
+      const response = await axios.delete(Endpoints.GiftBox.DELETE(id), { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Gift box deleted successfully!');
         // Remove deleted record from local state.

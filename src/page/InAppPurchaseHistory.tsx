@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Endpoints from '../endpoints';
 
 interface AppPurchaseHistory {
   _id: string;
@@ -44,7 +45,7 @@ const InAppPurchaseHistory: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase-history/get-app-purchase-history',
+        Endpoints.InAppPurchaseHistory.GET,
         { headers: { token: token || '' } }
       );
       if (res.data.status) {
@@ -81,7 +82,7 @@ const InAppPurchaseHistory: React.FC = () => {
     setAdding(true);
     try {
       const res = await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase-history/add-app-purchase-history',
+        Endpoints.InAppPurchaseHistory.ADD,
         newHistory,
         { headers: { token: token || '' } }
       );
@@ -128,9 +129,8 @@ const InAppPurchaseHistory: React.FC = () => {
     if (!editingId) return;
     setUpdatingId(editingId);
     try {
-      const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase-history/update-app-purchase-history/${editingId}`;
       const res = await axios.post(
-        updateUrl,
+        Endpoints.InAppPurchaseHistory.UPDATE(editingId),
         { status: editStatus },
         { headers: { token: token || '' } }
       );
@@ -160,8 +160,7 @@ const InAppPurchaseHistory: React.FC = () => {
   const handleDeleteHistory = async (id: string) => {
     setDeletingId(id);
     try {
-      const deleteUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase-history/delete-app-purchase-history/${id}`;
-      const res = await axios.delete(deleteUrl, { headers: { token: token || '' } });
+      const res = await axios.delete(Endpoints.InAppPurchaseHistory.DELETE(id), { headers: { token: token || '' } });
       if (res.data.status) {
         toast.success('Purchase history deleted successfully!');
         // Remove the record from local state.

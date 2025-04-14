@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Endpoints from '../endpoints';
 
 interface GameSettingData {
   _id: string;
@@ -27,7 +28,7 @@ const GameSettings: React.FC = () => {
   const getGameSettings = async () => {
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/game-setting/get-game-setting',
+        Endpoints.GameSettings.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {
@@ -66,7 +67,6 @@ const GameSettings: React.FC = () => {
     if (!settings) return;
     setUpdating(true);
     // Use the _id from settings for the update URL.
-    const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/game-setting/update-game-setting/${settings._id}`;
     const payload = {
       terms_condition: settings.terms_condition,
       privacy_policy: settings.privacy_policy,
@@ -79,7 +79,7 @@ const GameSettings: React.FC = () => {
     };
 
     try {
-      const response = await axios.post(updateUrl, payload, {
+      const response = await axios.post(Endpoints.GameSettings.UPDATE(settings._id), payload, {
         headers: { token: token || '' },
       });
       if (response.data.status) {

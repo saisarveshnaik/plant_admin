@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Endpoints from '../endpoints';
 
 interface DailyReward {
   _id?: string;
@@ -13,8 +14,6 @@ interface DailyReward {
   createdAt?: string;
   updatedAt?: string;
 }
-
-const API_BASE = 'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/daily-reward';
 
 const DailyRewards: React.FC = () => {
   const [dailyRewards, setDailyRewards] = useState<DailyReward[]>([]);
@@ -40,7 +39,7 @@ const DailyRewards: React.FC = () => {
 
     const fetchDailyRewards = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/get-daily-reward`, {
+        const response = await axios.get(Endpoints.DailyRewards.GET, {
           headers: {
             'Content-Type': 'application/json',
             token,
@@ -82,7 +81,7 @@ const DailyRewards: React.FC = () => {
     e.preventDefault();
     setAdding(true);
     try {
-      const response = await axios.post(`${API_BASE}/add-daily-reward`, newReward, axiosConfig);
+      const response = await axios.post(Endpoints.DailyRewards.ADD, newReward, axiosConfig);
       if (response.data.status) {
         setDailyRewards(prev => [...prev, response.data.data]);
         setNewReward({ day_No: 1, reward_type: 0, reward_value: '', img: '' });
@@ -123,7 +122,7 @@ const DailyRewards: React.FC = () => {
     };
 
     try {
-      const response = await axios.post(`${API_BASE}/update-daily-reward/${reward._id}`, payload, axiosConfig);
+      const response = await axios.post(Endpoints.DailyRewards.UPDATE(reward._id), payload, axiosConfig);
       if (response.data.status) {
         setDailyRewards(prev =>
           prev.map(item => (item._id === reward._id ? response.data.data : item))
@@ -147,7 +146,7 @@ const DailyRewards: React.FC = () => {
   const handleDeleteReward = async (id: string) => {
     setDeletingId(id);
     try {
-      const response = await axios.delete(`${API_BASE}/delete-daily-reward/${id}`, axiosConfig);
+      const response = await axios.delete(Endpoints.DailyRewards.DELETE(id), axiosConfig);
       if (response.data.status) {
         setDailyRewards(prev => prev.filter(item => item._id !== id));
         toast.success('Reward deleted successfully');

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Endpoints from '../endpoints';
 
 interface FreeAdData {
   _id: string;
@@ -54,7 +55,7 @@ const FreeAdRewards: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/free-ad/get-free-ad',
+        Endpoints.FreeAdRewards.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {
@@ -102,7 +103,7 @@ const FreeAdRewards: React.FC = () => {
     setAdding(true);
     try {
       const response = await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/free-ad/add-free-ad',
+        Endpoints.FreeAdRewards.ADD,
         newFreeAd,
         { headers: { token: token || '' } }
       );
@@ -146,7 +147,7 @@ const FreeAdRewards: React.FC = () => {
     if (!editingId) return;
     setUpdatingId(editingId);
     try {
-      const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/free-ad/update-free-ad/${editingId}`;
+      const updateUrl = Endpoints.FreeAdRewards.UPDATE(editingId);
       const response = await axios.post(updateUrl, editData, { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Free ad reward updated successfully!');
@@ -172,8 +173,7 @@ const FreeAdRewards: React.FC = () => {
   const handleDeleteFreeAd = async (id: string) => {
     setDeletingId(id);
     try {
-      const deleteUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/free-ad/delete-free-ad/${id}`;
-      const response = await axios.delete(deleteUrl, { headers: { token: token || '' } });
+      const response = await axios.delete(Endpoints.FreeAdRewards.DELETE(id), { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Free ad reward deleted successfully!');
         // Remove the record from local state.

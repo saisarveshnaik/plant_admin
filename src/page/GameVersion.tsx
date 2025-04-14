@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Endpoints from '../endpoints';
 
 interface VersionData {
   _id: string;
@@ -26,7 +27,7 @@ const GameVersion: React.FC = () => {
   const getVersion = async () => {
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/version/get-version',
+        Endpoints.Version.GET,
         {
           headers: { token: token || '' },
         }
@@ -68,7 +69,6 @@ const GameVersion: React.FC = () => {
 
     setUpdating(true);
 
-    const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/version/update-version/${version._id}`;
     // Only include the relevant fields in the payload.
     const payload = {
       android_version_code: version.android_version_code,
@@ -82,7 +82,8 @@ const GameVersion: React.FC = () => {
     };
 
     try {
-      const response = await axios.post(updateUrl, payload, {
+      const response = await axios.post(
+        Endpoints.Version.UPDATE(version._id), payload, {
         headers: { token: token || '' },
       });
       if (response.data.status) {

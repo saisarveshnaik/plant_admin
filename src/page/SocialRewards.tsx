@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Endpoints from '../endpoints';
 
 interface SocialData {
   _id: string;
@@ -69,7 +70,7 @@ const SocialRewards: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/social/get-social',
+        Endpoints.SocialRewards.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {
@@ -117,7 +118,7 @@ const SocialRewards: React.FC = () => {
     setAdding(true);
     try {
       const response = await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/social/add-social',
+        Endpoints.SocialRewards.ADD,
         newSocial,
         { headers: { token: token || '' } }
       );
@@ -171,8 +172,7 @@ const SocialRewards: React.FC = () => {
     if (!editingId) return;
     setUpdatingId(editingId);
     try {
-      const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/social/update-social/${editingId}`;
-      const response = await axios.post(updateUrl, editData, { headers: { token: token || '' } });
+      const response = await axios.post(Endpoints.SocialRewards.UPDATE(editingId), editData, { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Social reward updated successfully!');
         // Update local state by replacing the record with the updated one.
@@ -199,8 +199,7 @@ const SocialRewards: React.FC = () => {
   const handleDeleteSocial = async (id: string) => {
     setDeletingId(id);
     try {
-      const deleteUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/social/delete-social/${id}`;
-      const response = await axios.delete(deleteUrl, { headers: { token: token || '' } });
+      const response = await axios.delete(Endpoints.SocialRewards.DELETE(id), { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Social reward deleted successfully!');
         // Remove the record from local state.

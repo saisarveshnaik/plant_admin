@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Endpoints from '../endpoints';
 
 interface PlayerPlantData {
   _id: string;
@@ -71,7 +72,7 @@ const PlayerPlant: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/player-plant/get-player-plant',
+        Endpoints.PlayerPlant.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {
@@ -117,7 +118,7 @@ const PlayerPlant: React.FC = () => {
     setAdding(true);
     try {
       const response = await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/player-plant/add-player-plant',
+        Endpoints.PlayerPlant.ADD,
         newPlant,
         { headers: { token: token || '' } }
       );
@@ -173,9 +174,8 @@ const PlayerPlant: React.FC = () => {
     if (!editingPlantId) return;
     setUpdatingId(editingPlantId);
     try {
-      const updateUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/player-plant/update-player-plant/${editingPlantId}`;
       const payload = { ...editData };
-      const response = await axios.post(updateUrl, payload, { headers: { token: token || '' } });
+      const response = await axios.post(Endpoints.PlayerPlant.UPDATE(editingPlantId), payload, { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Player plant updated successfully!');
         // Update the record in local state.
@@ -202,8 +202,7 @@ const PlayerPlant: React.FC = () => {
   const handleDeletePlant = async (plantId: string) => {
     setDeletingId(plantId);
     try {
-      const deleteUrl = `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/player-plant/delete-player-plant/${plantId}`;
-      const response = await axios.delete(deleteUrl, { headers: { token: token || '' } });
+      const response = await axios.delete(Endpoints.PlayerPlant.DELETE(plantId), { headers: { token: token || '' } });
       if (response.data.status) {
         toast.success('Player plant deleted successfully!');
         // Remove the record from local state.

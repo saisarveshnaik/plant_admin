@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Endpoints from '../endpoints';
 
 interface AchievementCollectData {
   _id: string;
@@ -26,7 +27,7 @@ const AchievementCollect: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/achivement-collect/get-achivement-collect',
+        Endpoints.AchievementCollect.GET,
         { headers: { token: token || '' } }
       );
       if (response.data.status) {

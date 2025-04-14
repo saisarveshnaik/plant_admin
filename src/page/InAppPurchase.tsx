@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Endpoints from '../endpoints';
 
 interface AppPurchase {
   _id: string;
@@ -61,7 +62,7 @@ const InAppPurchase: React.FC = () => {
   const fetchPurchases = async () => {
     try {
       const response = await axios.get(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase/get-app-purchase',
+        Endpoints.InAppPurchase.GET,
         { headers: { token } }
       );
       if (response.data.status) {
@@ -97,7 +98,7 @@ const InAppPurchase: React.FC = () => {
     setLoadingAdd(true);
     try {
       await axios.post(
-        'http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase/add-app-purchase',
+        Endpoints.InAppPurchase.ADD,
         newPurchase,
         { headers: { token } }
       );
@@ -151,7 +152,7 @@ const InAppPurchase: React.FC = () => {
     const updatedData = { ...purchase, ...editValues[id] };
     try {
       await axios.post(
-        `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase/update-app-purchase/${id}`,
+        Endpoints.InAppPurchase.UPDATE(id),
         updatedData,
         { headers: { token } }
       );
@@ -174,7 +175,7 @@ const InAppPurchase: React.FC = () => {
     setLoadingDelete((prev) => ({ ...prev, [id]: true }));
     try {
       await axios.delete(
-        `http://ec2-34-230-39-240.compute-1.amazonaws.com/api/admin/app-purchase/delete-app-purchase/${id}`,
+        Endpoints.InAppPurchase.DELETE(id),
         { headers: { token } }
       );
       toast.success('Purchase deleted successfully!');
