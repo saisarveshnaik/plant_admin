@@ -1,27 +1,52 @@
-import React, { useState } from 'react';
-import DataTable from 'react-data-table-component';
+import React, { useState, useEffect } from 'react';
+import axios from '../utils/axiosInstance';import DataTable from 'react-data-table-component';
+import Endpoints from '../endpoints';
+import { Modal, Button, Form, ToastContainer, Toast } from 'react-bootstrap';
 
 // Define the type for the data (data structure)
 interface AdminData {
-  id: number;
+  id: string;
   adminName: string;
   email: string;
-  phone: string;
-  username: string;
-  password: string;
-  status: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Sample data
-const data: AdminData[] = [
-  { id: 1, adminName: 'Alice Johnson', email: 'alice.johnson@example.com', phone: '123-456-7890', username: 'alice.j', password: 'password123', status: 'Active' },
-  { id: 2, adminName: 'Rajesh Kumar', email: 'rajesh.kumar@example.com', phone: '987-654-3210', username: 'rajesh.k', password: 'securePass456', status: 'Pending' },
-  { id: 3, adminName: 'Emily Wong', email: 'emily.wong@example.com', phone: '456-789-1230', username: 'emily.w', password: 'myPassword789', status: 'Active' },
-];
-
 const ListAdmin: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [data, setData] = useState<AdminData[]>([]);
   const [filteredData, setFilteredData] = useState(data);
+  const token = localStorage.getItem('authToken');
+
+  const [showToast, setShowToast] = useState(false);
+const [toastMessage, setToastMessage] = useState('');
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const res = await axios.get(Endpoints.Auth.GET,
+          { headers: { token: token || '' } }
+        );
+        if (res.data?.status) {
+          const formattedData = res.data.data.map((admin: any) => ({
+            id: admin._id,
+            adminName: admin.name,
+            email: admin.email,
+            role: admin.role,
+            createdAt: admin.createdAt,
+            updatedAt: admin.updatedAt,
+          }));
+          setData(formattedData);
+          setFilteredData(formattedData);
+        }
+      } catch (err) {
+        console.error('Failed to fetch admin data', err);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
 
   // Handle search input changes
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,18 +58,25 @@ const ListAdmin: React.FC = () => {
       (item) =>
         item.adminName.toLowerCase().includes(query) ||
         item.email.toLowerCase().includes(query) ||
-        item.phone.toLowerCase().includes(query) ||
-        item.username.toLowerCase().includes(query) ||
-        item.status.toLowerCase().includes(query)
+        item.role.toLowerCase().includes(query)
     );
 
     setFilteredData(filtered);
   };
 
   // Handle delete action
-  const handleDelete = (id: number) => {
-    const updatedData = filteredData.filter((item) => item.id !== id);
-    setFilteredData(updatedData);
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(Endpoints.Auth.DELETE(id), { headers: { token: token || '' } });
+
+      setToastMessage('Admin deleted successfully!');
+    setShowToast(true);
+      setFilteredData(filteredData.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error('Error deleting admin:', err);
+      setToastMessage('Failed to add admin.');
+      setShowToast(true);
+    }
   };
 
   // Columns for DataTable
@@ -59,20 +91,17 @@ const ListAdmin: React.FC = () => {
       selector: (row: AdminData) => row.email,
     },
     {
-      name: 'Phone',
-      selector: (row: AdminData) => row.phone,
+      name: 'Role',
+      selector: (row: AdminData) => row.role,
     },
     {
-      name: 'Username',
-      selector: (row: AdminData) => row.username,
+      name: 'Created At',
+      selector: (row: AdminData) => new Date(row.createdAt).toLocaleString(),
+      sortable: true,
     },
     {
-      name: 'Password',
-      selector: (row: AdminData) => row.password,
-    },
-    {
-      name: 'Status',
-      selector: (row: AdminData) => row.status,
+      name: 'Last Activity',
+      selector: (row: AdminData) => new Date(row.updatedAt).toLocaleString(),
       sortable: true,
     },
     {
@@ -97,10 +126,16 @@ const ListAdmin: React.FC = () => {
 
   return (
     <div>
+
+<ToastContainer position="top-end" className="p-3">
+  <Toast show={showToast} onClose={() => setShowToast(false)} delay={3000} autohide>
+    <Toast.Body>{toastMessage}</Toast.Body>
+  </Toast>
+</ToastContainer>
       <input
         className='form-control'
         type="text"
-        placeholder="Search by admin name, email, phone, username, or status"
+        placeholder="Search by admin name, email, or role"
         value={searchQuery}
         onChange={handleSearch}
         style={{
@@ -110,6 +145,8 @@ const ListAdmin: React.FC = () => {
           boxSizing: 'border-box',
         }}
       />
+      <div className="my-3">
+      </div>
       {/* Data Table */}
       <DataTable
         title="View/Delete Admins"

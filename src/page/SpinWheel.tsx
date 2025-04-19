@@ -1,16 +1,17 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import axios from '../utils/axiosInstance';
+import Endpoints from '../endpoints';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface SpinSlot {
-  slot: number;
-  reward: string;
-  amount: string;
-  probability: number;
+  id: string;
+  spin_part: number;
+  reward_type: number;
+  reward_value: string;
+  chance: number;
 }
 
-/**
- * Generates an array of random probabilities (with two decimal places)
- * for a given number of slots that sum up to the specified total.
- */
 const generateRandomProbabilities = (numSlots: number, total: number = 100): number[] => {
   const randoms = Array.from({ length: numSlots }, () => Math.random());
   const totalRandom = randoms.reduce((acc, value) => acc + value, 0);
@@ -27,122 +28,149 @@ const generateRandomProbabilities = (numSlots: number, total: number = 100): num
 };
 
 const SpinWheel: React.FC = () => {
-  // Top row configuration state.
-  const [spinTimer, setSpinTimer] = useState('');
-  const [currency, setCurrency] = useState('Gold');
-  const [baseValue, setBaseValue] = useState('');
-  const [multiplierValue, setMultiplierValue] = useState('');
-
-  // Initialize with 8 slots, assigning equal probabilities (deterministic on refresh).
   const initialNumSlots = 8;
   const equalProbability = parseFloat((100 / initialNumSlots).toFixed(2));
   const initialProbabilities = Array.from({ length: initialNumSlots }, () => equalProbability);
 
-  const initialSlots: SpinSlot[] = Array.from({ length: initialNumSlots }, (_, index) => ({
-    slot: index + 1,
-    reward: '',
-    amount: '',
-    probability: initialProbabilities[index],
-  }));
-
-  const [slots, setSlots] = useState<SpinSlot[]>(initialSlots);
-
-  // Top row field handlers.
-  const handleSpinTimerChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSpinTimer(e.target.value);
-  };
-
-  const handleCurrencyChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setCurrency(e.target.value);
-  };
-
-  const handleBaseValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setBaseValue(e.target.value);
-  };
-
-  const handleMultiplierValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setMultiplierValue(e.target.value);
-  };
-
-  // Handlers for the Reward and Amount fields.
-  const handleRewardChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
-    const newReward = e.target.value;
+  const [slots, setSlots] = useState<SpinSlot[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const handleRewardChange = (index: number, field: 'reward_type' | 'reward_value', value: string) => {
     setSlots(prevSlots => {
       const updated = [...prevSlots];
-      updated[index].reward = newReward;
+      updated[index] = {
+        ...updated[index],
+        [field]: field === 'reward_type' ? Number(value) : value
+      };
       return updated;
     });
   };
 
-  const handleAmountChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
-    const newAmount = e.target.value;
-    setSlots(prevSlots => {
-      const updated = [...prevSlots];
-      updated[index].amount = newAmount;
-      return updated;
-    });
-  };
-
-  /**
-   * When the admin enters a probability value in one slot,
-   * that slot’s probability is fixed and the remaining slots are assigned
-   * random probabilities that sum up to (100 - fixed value).
-   */
+  const token = localStorage.getItem('authToken');
   const handleProbabilityChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     const parsedValue = parseFloat(inputValue);
     if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 100) {
-      return; // Optionally handle invalid input
+      return;
     }
     const fixedProbability = parsedValue;
     const numSlots = slots.length;
     const numOtherSlots = numSlots - 1;
     let newSlots = [...slots];
-    newSlots[index].probability = fixedProbability;
+    newSlots[index].chance = fixedProbability;
     if (numOtherSlots > 0) {
       const remainingTotal = parseFloat((100 - fixedProbability).toFixed(2));
       const randomProbs = generateRandomProbabilities(numOtherSlots, remainingTotal);
       let counter = 0;
       newSlots = newSlots.map((slot, idx) => {
         if (idx === index) return slot;
-        return { ...slot, probability: randomProbs[counter++] };
+        return { ...slot, chance: randomProbs[counter++] };
       });
     }
     setSlots(newSlots);
   };
 
-  // Handler to add a new slot. When added, probabilities are recalculated.
   const addSlot = () => {
     setSlots(prevSlots => {
       const newSlotNumber = prevSlots.length + 1;
       const newSlot: SpinSlot = {
-        slot: newSlotNumber,
-        reward: '',
-        amount: '',
-        probability: 0, // temporary; will be recalculated below
+        id: '',
+        spin_part: newSlotNumber,
+        reward_type: 0,
+        reward_value: '',
+        chance: 0,
       };
       const updatedSlots = [...prevSlots, newSlot];
       
-      // If any slot was previously manually fixed (i.e. not equal), recalc based on that.
       const fixedIndex = updatedSlots.findIndex(
-        (slot) => slot.probability !== parseFloat((100 / prevSlots.length).toFixed(2))
+        (slot) => slot.chance !== parseFloat((100 / prevSlots.length).toFixed(2))
       );
+      setEditingIndex(fixedIndex+1);
       if (fixedIndex !== -1) {
-        const fixedProbability = updatedSlots[fixedIndex].probability;
+        const fixedProbability = updatedSlots[fixedIndex].chance;
         const numOtherSlots = updatedSlots.length - 1;
         const remainingTotal = parseFloat((100 - fixedProbability).toFixed(2));
         const randomProbs = generateRandomProbabilities(numOtherSlots, remainingTotal);
-        let counter = 0;
+        let counter = 0;  
         return updatedSlots.map((slot, idx) => {
           if (idx === fixedIndex) return slot;
-          return { ...slot, probability: randomProbs[counter++] };
+          return { ...slot, chance: randomProbs[counter++] };
         });
       } else {
-        // If no slot was manually fixed, distribute equally.
         const newEqual = parseFloat((100 / updatedSlots.length).toFixed(2));
-        return updatedSlots.map(slot => ({ ...slot, probability: newEqual }));
+        return updatedSlots.map(slot => ({ ...slot, chance: newEqual }));
       }
     });
+  };
+
+  const deleteSlot = async (index: number) => {
+    const slotToDelete = slots[index];
+    try {
+      if(slotToDelete.id) {
+      await axios.delete(Endpoints.SpinWheel.DELETE(slotToDelete.id), {
+        headers: { token: token || '' },
+      });
+
+      toast.success('Spin wheel deleted successfully!');
+    }
+      setSlots((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error('Failed to delete slot:', error);
+
+      toast.error('Spin wheel failed to delete!');
+    }
+  };
+
+
+  useEffect(() => {
+    // Fetch spin wheel data
+    const fetchSpinWheel = async () => {
+      // Assume fetch logic here
+      const res = await axios.get(
+        Endpoints.SpinWheel.GET,
+        { headers: { token: token || '' } }
+      ); // Example API call
+      const data = res.data?.data;
+      if (data) {
+        const fetchedSlots = data.map((slot: any) => ({
+          id: slot.id,
+          spin_part: slot.spin_part,
+          reward_type: slot.reward_type,
+          reward_value: slot.reward_value,
+          chance: slot.chance
+        }));
+        setSlots(fetchedSlots);
+      }
+    };
+    fetchSpinWheel();
+  }, []);
+
+  const saveSingleSlot = async (index: number) => {
+    const slot = slots[index];
+    const payload = {
+        spin_part: slot.spin_part,
+        reward_type: slot.reward_type,
+        reward_value: slot.reward_value,
+        chance: slot.chance,
+    };
+    try {
+      if(slot.id) {
+      await axios.post(Endpoints.SpinWheel.UPDATE(slot.id), payload, {
+        headers: { token: token || '' },
+      });
+      toast.success('Slot updated successfully.');
+      setEditingIndex(null);
+    } else {
+      await axios.post(Endpoints.SpinWheel.ADD, payload, {
+        headers: { token: token || '' },
+      });
+      toast.success('Spin wheel added successfully.');
+      setEditingIndex(null);
+    }
+    } catch (error) {
+      console.error('Failed to update slot:', error);
+
+      toast.error('Spin wheel failed to update.');
+    }
   };
 
   return (
@@ -150,101 +178,63 @@ const SpinWheel: React.FC = () => {
       <div className="card shadow-sm">
         <div className="card-body">
           <h5 className="card-title mb-4">Spin Wheel</h5>
-          
-          {/* Top configuration row */}
-          <div className="mb-4">
-            <div className="row">
-              <div className="col-md-3">
-                <div className="form-group">
-                  <label>Spin Timer</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={spinTimer}
-                    onChange={handleSpinTimerChange}
-                    placeholder="Enter spin timer"
-                  />
-                </div>
-              </div>
-              <div className="col-md-3">
-                <div className="form-group">
-                  <label>Currency</label>
-                  <select
-                    className="form-control"
-                    value={currency}
-                    onChange={handleCurrencyChange}
-                  >
-                    <option value="Gold">Gold</option>
-                    <option value="Resource">Resource</option>
-                    <option value="currency">currency</option>
-                  </select>
-                </div>
-              </div>
-              <div className="col-md-3">
-                <div className="form-group">
-                  <label>Base Value</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={baseValue}
-                    onChange={handleBaseValueChange}
-                    placeholder="Enter base value"
-                  />
-                </div>
-              </div>
-              <div className="col-md-3">
-                <div className="form-group">
-                  <label>Multiplier Value</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={multiplierValue}
-                    onChange={handleMultiplierValueChange}
-                    placeholder="Enter multiplier value"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Slots table */}
           <div className="table-responsive">
             <table className="table table-bordered">
               <thead>
                 <tr>
-                  <th>Slot</th>
-                  <th>Reward</th>
-                  <th>Amount</th>
-                  <th>Probability (%)</th>
+                  <th>Spin Part</th>
+                  <th>Reward Type</th>
+                  <th>Reward Value</th>
+                  <th>Chance</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {slots.map((slotItem, index) => (
                   <tr key={index}>
-                    <td>Slot {slotItem.slot}</td>
+                    <td>{slotItem.spin_part}</td>
+                    <td>
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={slotItem.reward_type}
+                        disabled={editingIndex !== index}
+                        onChange={(e) => handleRewardChange(index, 'reward_type', e.target.value)}
+                      />
+                    </td>
                     <td>
                       <input
                         type="text"
                         className="form-control"
-                        value={slotItem.reward}
-                        onChange={(e) => handleRewardChange(index, e)}
+                        value={slotItem.reward_value}
+                        disabled={editingIndex !== index}
+                        onChange={(e) => handleRewardChange(index, 'reward_value', e.target.value)}
                       />
                     </td>
                     <td>
                       <input
                         type="number"
                         className="form-control"
-                        value={slotItem.amount}
-                        onChange={(e) => handleAmountChange(index, e)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={slotItem.probability}
+                        value={slotItem.chance}
+                        disabled={editingIndex !== index}
                         onChange={(e) => handleProbabilityChange(index, e)}
                       />
+                    </td>
+                    <td>
+                    {editingIndex === index ? (
+                        <button className="btn btn-success btn-sm me-2" onClick={() => saveSingleSlot(index)}>
+                          Save
+                        </button>
+                      ) : (
+                        <button className="btn btn-success btn-sm me-2" onClick={() => setEditingIndex(index)}>
+                          Edit
+                        </button>
+                      )}
+                      <button className="btn btn-danger btn-sm" onClick={() => deleteSlot(index)}>
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -258,6 +248,7 @@ const SpinWheel: React.FC = () => {
           </button>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

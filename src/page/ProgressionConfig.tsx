@@ -1,66 +1,108 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import axios from '../utils/axiosInstance';import Endpoints from '../endpoints';
+import { Toast, ToastContainer, Modal, Button, Form } from 'react-bootstrap';
 
 interface RankConfig {
-  rank: number;
-  xpRequired: number;
-  rewardItem: string;
-  amount: string;
+  id: string;
+  rankNo: number;
+  levelno: number;
+  inc_no: number;
+  expValue: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const ProgressionConfig: React.FC = () => {
-  // Initialize 30 ranks by default.
-  const initialRanks: RankConfig[] = Array.from({ length: 30 }, (_, index) => ({
-    rank: index + 1,
-    xpRequired: 1000 * (index + 1), // Example XP value; adjust as needed.
-    rewardItem: '',
-    amount: '',
-  }));
+  const [rankData, setRankData] = useState<RankConfig[]>([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentEdit, setCurrentEdit] = useState<RankConfig | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newRank, setNewRank] = useState({ rankNo: 0, levelno: 0, inc_no: 10 });
+  const token = localStorage.getItem('authToken');
 
-  const [ranks, setRanks] = useState<RankConfig[]>(initialRanks);
-
-  // Ranks that should have Reward Items and Amount inputs.
-  const eligibleRanks = [5, 10, 15, 20, 25, 28, 30];
-
-  // Handler to update the XP required value for a given rank.
-  const handleXpChange = (rankNumber: number, event: ChangeEvent<HTMLInputElement>) => {
-    const newXp = Number(event.target.value);
-    setRanks(prevRanks =>
-      prevRanks.map(r =>
-        r.rank === rankNumber ? { ...r, xpRequired: newXp } : r
-      )
-    );
-  };
-
-  // Handler to update the reward item for a given rank.
-  const handleRewardItemChange = (rankNumber: number, event: ChangeEvent<HTMLSelectElement>) => {
-    const newRewardItem = event.target.value;
-    setRanks(prevRanks =>
-      prevRanks.map(r =>
-        r.rank === rankNumber ? { ...r, rewardItem: newRewardItem } : r
-      )
-    );
-  };
-
-  // Handler to update the amount for a given rank.
-  const handleAmountChange = (rankNumber: number, event: ChangeEvent<HTMLInputElement>) => {
-    const newAmount = event.target.value;
-    setRanks(prevRanks =>
-      prevRanks.map(r =>
-        r.rank === rankNumber ? { ...r, amount: newAmount } : r
-      )
-    );
-  };
-
-  // Handler to add a new rank.
-  const addRank = () => {
-    const newRankNumber = ranks.length + 1;
-    const newRank: RankConfig = {
-      rank: newRankNumber,
-      xpRequired: 1000 * newRankNumber, // Default XP value; adjust if necessary.
-      rewardItem: '',
-      amount: '',
+  useEffect(() => {
+    const fetchRankData = async () => {
+      try {
+        const response = await axios.get(Endpoints.PlayerRankProgression.GET,
+          { headers: { token: token || '' } }
+        );
+        if (response.data?.status) {
+          setRankData(response.data.data.map((item: any) => ({
+            id: item._id,
+            rankNo: item.rankNo,
+            levelno: item.levelno,
+            inc_no: item.inc_no,
+            expValue: item.expValue,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+          })));
+        }
+      } catch (err) {
+        console.error('Error fetching rank data:', err);
+      }
     };
-    setRanks(prevRanks => [...prevRanks, newRank]);
+
+    fetchRankData();
+  }, []);
+
+  const handleInputChange = (index: number, field: keyof RankConfig, value: string | number) => {
+    const updated = [...rankData];
+    (updated[index] as any)[field] = field === 'rankNo' || field === 'expValue' || field === 'levelno' || field === 'inc_no' ? Number(value) : value;
+    setRankData(updated);
+  };
+
+  const handleAddRank = () => {
+    setShowAddModal(true);
+  };
+
+  const handleSaveNewRank = async () => {
+    try {
+      await axios.post(Endpoints.PlayerRankProgression.ADD, {
+        rankNo: newRank.rankNo,
+        levelno: newRank.levelno,
+        inc_no: newRank.inc_no,
+      }, {
+        headers: { token: token || '' },
+      });
+      setToastMessage('New rank config added');
+      setShowToast(true);
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Error adding new rank config:', error);
+    }
+  };
+
+  const handleEdit = (rank: RankConfig) => {
+    setCurrentEdit(rank);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateRank = async () => {
+    if (!currentEdit) return;
+    try {
+      await axios.post(Endpoints.PlayerRankProgression.UPDATE(String(currentEdit.id)), currentEdit, {
+        headers: { token: token || '' },
+      });
+      setToastMessage('Rank updated successfully');
+      setShowToast(true);
+      setShowEditModal(false);
+    } catch (err) {
+      console.error('Error updating rank:', err);
+    }
+  };
+
+  const handleSaveRanks = async () => {
+    try {
+      await axios.post(Endpoints.PlayerRankProgression.ADD, rankData, {
+        headers: { token: token || '' }
+      });
+      setToastMessage('Rank progression saved successfully');
+      setShowToast(true);
+    } catch (error) {
+      console.error('Error saving rank progression:', error);
+    }
   };
 
   return (
@@ -73,62 +115,121 @@ const ProgressionConfig: React.FC = () => {
             <table className="table table-bordered">
               <thead>
                 <tr>
-                  <th>Rank</th>
-                  <th>XP Required</th>
-                  <th>Reward Items</th>
-                  <th>Amount</th>
+                  <th>Rank No</th>
+                  <th>Level No</th>
+                  <th>Increment No</th>
+                  <th>Created At</th>
+                  <th>Last Activity</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {ranks.map((rankItem) => (
-                  <tr key={rankItem.rank}>
-                    <td>{rankItem.rank}</td>
+                {rankData.map((rankItem, index) => (
+                  <tr key={rankItem.id}>
+                    <td>{rankItem.rankNo}</td>
+                    <td>{rankItem.levelno?? 'N/A'}</td>
+                    <td>{rankItem.expValue}</td>
+                    <td>{new Date(rankItem.createdAt).toLocaleString()}</td>
+                    <td>{new Date(rankItem.updatedAt).toLocaleString()}</td>
                     <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={rankItem.xpRequired}
-                        onChange={(e) => handleXpChange(rankItem.rank, e)}
-                      />
-                    </td>
-                    <td>
-                      {eligibleRanks.includes(rankItem.rank) ? (
-                        <select
-                          className="form-control form-select"
-                          value={rankItem.rewardItem}
-                          onChange={(e) => handleRewardItemChange(rankItem.rank, e)}
-                        >
-                          <option value="">Select Reward</option>
-                          <option value="gold">gold</option>
-                          <option value="silver">silver</option>
-                          <option value="bronze">bronze</option>
-                          <option value="sunlight">sunlight</option>
-                          <option value="water">water</option>
-                          <option value="nutrients">nutrients</option>
-                        </select>
-                      ) : null}
-                    </td>
-                    <td>
-                      {eligibleRanks.includes(rankItem.rank) ? (
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={rankItem.amount}
-                          onChange={(e) => handleAmountChange(rankItem.rank, e)}
-                        />
-                      ) : null}
+                      <button className="btn btn-sm btn-secondary" onClick={() => handleEdit(rankItem)}>
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <button className="btn btn-primary" onClick={addRank}>
-            Add Rank
+          <button className="btn btn-primary" onClick={handleAddRank}>
+            + Add New Config
           </button>
-          <button className="btn btn-primary mt-2" >
+          <button className="btn btn-primary mt-2" onClick={handleSaveRanks}>
             Save Changes
           </button>
+          <ToastContainer position="top-end" className="p-3">
+            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide bg="success">
+              <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+            </Toast>
+          </ToastContainer>
+          <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Edit Rank</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form>
+                <Form.Group>
+                  <Form.Label>Rank No</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={currentEdit?.rankNo ?? 0}
+                    onChange={(e) =>
+                      setCurrentEdit((prev) => prev ? { ...prev, rankNo: Number(e.target.value) } : null)
+                    }
+                  />
+                </Form.Group>
+                <Form.Group className="mt-3">
+                  <Form.Label>Level No</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={newRank.levelno}
+                    onChange={(e) => setNewRank({ ...newRank, levelno: Number(e.target.value) })}
+                  />
+                </Form.Group>
+                <Form.Group className="mt-3">
+                  <Form.Label>Exp Required</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={currentEdit?.expValue ?? 0}
+                    onChange={(e) =>
+                      setCurrentEdit((prev) => prev ? { ...prev, expValue: Number(e.target.value) } : null)
+                    }
+                  />
+                </Form.Group>
+              </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleUpdateRank}>
+                Save Changes
+              </Button>
+            </Modal.Footer>
+          </Modal>
+          <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Add New Rank Config</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form>
+                <Form.Group>
+                  <Form.Label>Rank No</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={newRank.rankNo}
+                    onChange={(e) => setNewRank({ ...newRank, rankNo: Number(e.target.value) })}
+                  />
+                </Form.Group>
+                <Form.Group className="mt-3">
+                  <Form.Label>Increment No</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={newRank.inc_no}
+                    onChange={(e) => setNewRank({ ...newRank, inc_no: Number(e.target.value) })}
+                  />
+                </Form.Group>
+              </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleSaveNewRank}>
+                Add Rank
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </div>
     </div>

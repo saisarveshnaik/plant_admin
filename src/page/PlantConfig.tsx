@@ -1,5 +1,7 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Button, Form, Tabs, Tab, Table, Row, Col } from 'react-bootstrap';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import axios from '../utils/axiosInstance';import { Button, Form, Tabs, Tab, Table, Row, Col } from 'react-bootstrap';
+import Endpoints from '../endpoints';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface Plant {
   serialId: string;
@@ -17,9 +19,10 @@ interface LifecycleRow {
 }
 
 interface HealthRow {
-  division: string;
   resources: number;
   halfLife: number | string;
+  min_health: number | string;
+  max_health: number | string;
 }
 
 interface StageRow {
@@ -39,34 +42,16 @@ const defaultLifecycle: LifecycleRow[] = [
 ];
 
 const defaultPlantHealth: HealthRow[] = [
-  { division: '0', resources: 100, halfLife: '' },
-  { division: '1-20', resources: 90, halfLife: 12.55 },
-  { division: '20-40', resources: 80, halfLife: 7.59 },
-  { division: '40-60', resources: 30, halfLife: 4.59 },
-  { division: '60-80', resources: 30, halfLife: 2.78 },
-  { division: '80-85', resources: 30, halfLife: 1.59 },
-  { division: '85-95', resources: 20, halfLife: 0.79 },
-  { division: '95-100', resources: 10, halfLife: 0.48 }
+  { min_health: '0', max_health: 0, resources: 100, halfLife: '' },
+  { min_health: '1', max_health: 20, resources: 90, halfLife: 12.55 },
+  { min_health: '20', max_health: 40, resources: 80, halfLife: 7.59 },
+  { min_health: '40', max_health: 60, resources: 30, halfLife: 4.59 },
+  { min_health: '60', max_health: 80, resources: 30, halfLife: 2.78 },
+  { min_health: '80', max_health: 85, resources: 30, halfLife: 1.59 },
+  { min_health: '85', max_health: 95, resources: 20, halfLife: 0.79 },
+  { min_health: '95', max_health: 100, resources: 10, halfLife: 0.48 }
 ];
 
-const samplePlants: Plant[] = [
-  {
-    serialId: '1',
-    plantId: 'P001',
-    plantName: 'Rose',
-    plantCategory: 'Flower',
-    plantDescription: 'Red rose plant',
-    state: 'active'
-  },
-  {
-    serialId: '2',
-    plantId: 'P002',
-    plantName: 'Tulip',
-    plantCategory: 'Flower',
-    plantDescription: 'Tulip plant',
-    state: 'inactive'
-  }
-];
 
 const PlantConfig: React.FC = () => {
   // Tab navigation state
@@ -75,10 +60,12 @@ const PlantConfig: React.FC = () => {
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
   // Plant list state
-  const [plants, setPlants] = useState<Plant[]>(samplePlants);
+  const [plants, setPlants] = useState<Plant[]>([]);
   // Lifecycle and health data for details view
   const [lifecycleData, setLifecycleData] = useState<LifecycleRow[]>(defaultLifecycle);
   const [plantHealthData, setPlantHealthData] = useState<HealthRow[]>(defaultPlantHealth);
+  const [formulaData, setFormulaData] = useState<any[]>([]);
+  const [divisionData, setDivisionData] = useState<any[]>([]);
   // States for search and filter in first tab
   const [searchText, setSearchText] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
@@ -86,30 +73,231 @@ const PlantConfig: React.FC = () => {
   // New Plant Config states (for Add New Plant Config tab)
   const [newPlantStages, setNewPlantStages] = useState<StageRow[]>([]);
   const [newPlantHealth, setNewPlantHealth] = useState<HealthRow[]>([]);
+  const [newFormulaData, setNewFormulaData] = useState([
+    { l_res_1: '', l_res_2: '', l_res_3: '' }
+  ]);
+
+  const [newDivisionData, setNewDivisionData] = useState([
+    { min: 0, max: 0, base: 0 }
+  ]);
 
   // Add Rewards tab states
   const [rewardSearchText, setRewardSearchText] = useState<string>('');
   const [selectedPlantForReward, setSelectedPlantForReward] = useState<Plant | null>(null);
-  // For simplicity, rewards are not stored persistently in this demo
+  const token = localStorage.getItem('authToken');
+
+  useEffect(() => {
+    const fetchPlantConfig = async () => {
+      try {
+        const response = await axios.get(Endpoints.Plant.GET,
+          { headers: { token: token || '' } }
+        );
+        setPlants([]);
+        if (response.data.status && response.data.data.length > 0) {
+
+          console.log(response.data.data.length);
+          for (let i = 0; i < response.data.data.length; i++) {
+            const plant = response.data.data[i];
+
+            // Map stages to lifecycleData format
+            const mappedStages = plant.stages.map((stage: any) => ({
+              stage: stage.stage,
+              essence: stage.essense,
+              days: 0  // default or adjust as needed
+            }));
+
+            // Map plant healths
+            const mappedHealth = plant.plant_healths.map((health: any) => ({
+              min_health: health.min_health,
+              max_health: health.max_health,
+              resources: health.resource_need,
+              halfLife: health.decay_rate
+            }));
+
+            // Update state
+            setLifecycleData(mappedStages);
+            setPlantHealthData(mappedHealth);
+
+            // Optionally push this plant to the list
+            const mappedPlant: any = {
+              serialId: plant.no,
+              plantId: plant.id,
+              plantName: plant.name,
+              plantCategory: 'Unknown',
+              plantDescription: 'Fetched from API',
+              state: plant.status ? 'active' : 'inactive',
+              formula: plant.formula,
+              division: plant.division,
+              stages: plant.stages,
+              healths: plant.healths
+            };
+            setPlants((prevPlants) => {
+              const updatedPlants = [...prevPlants, mappedPlant];
+              console.log("New list inside setter:", updatedPlants);
+              return updatedPlants;
+            });
+          }
+        }
+        console.log(plants);
+      } catch (error) {
+        console.error('Failed to fetch plant config:', error);
+      }
+    };
+
+    fetchPlantConfig();
+  }, []);
+
+  const handleUpdatePlant = async () => {
+    if (!selectedPlant) return;
+
+    try {
+      const requestBody = {
+        name: selectedPlant.plantName,
+        no: Number(selectedPlant.serialId),
+        stages: lifecycleData.map((stage) => ({
+          stage: stage.stage,
+          essense: stage.essence
+        })),
+        plant_healths: plantHealthData.map((health) => {
+          return {
+            resource_need: health.resources,
+            decay_rate: Number(health.halfLife),
+            min_health: Number(health.min_health),
+            max_health: Number(health.max_health)
+          };
+        }),
+        sync_minute_time: selectedPlant.plantName || '', // or use another dynamic field
+        formula: formulaData.map((item) => ({
+          l_res_1: item.l_res_1,
+          l_res_2: item.l_res_2,
+          l_res_3: item.l_res_3
+        })),
+        division: divisionData.map((item) => ({
+          min: Number(item.min),
+          max: Number(item.max),
+          base: Number(item.base)
+        })),
+        status: selectedPlant.state === 'active'
+      };
+
+      const response = await axios.post(
+        Endpoints.Plant.UPDATE(selectedPlant.plantId),
+        requestBody,
+        { headers: { token: token || '' } }
+      );
+
+      console.log('Plant updated:', response.data);
+      toast.success('Plant updated successfully!');
+    } catch (error) {
+      console.error('Error updating plant:', error);
+      toast.error('Error updating plant!');
+    }
+  };
+
+  const handleAddPlantToServer = async () => {
+    try {
+      const plant_no = (document.getElementById('formPlantNo') as HTMLInputElement).value;
+      const syncMinuteTime = (document.getElementById('formSyncMinuteTime') as HTMLInputElement).value;
+      const plantName = (document.getElementById('formPlantName') as HTMLInputElement).value;
+      const plantState = (document.getElementById('formPlantState') as HTMLSelectElement).value;
+
+      const requestBody = {
+        name: plantName,
+        no: Number(plant_no),
+        stages: newPlantStages.map((stage) => ({
+          stage: stage.stage,
+          essense: stage.xp
+        })),
+        plant_healths: newPlantHealth.map((health) => {
+          return {
+            resource_need: health.resources,
+            decay_rate: Number(health.halfLife),
+            min_health: health.min_health,
+            max_health: health.max_health
+          };
+        }),
+        sync_minute_time: syncMinuteTime,
+        formula: newFormulaData,
+        division: newDivisionData,
+        status: plantState === 'active'
+      };
+
+      const response = await axios.post(Endpoints.Plant.ADD, requestBody,
+        { headers: { token: token || '' } }
+      );
+      toast.success('Plant added successfully!');
+      console.log('Add response:', response.data);
+    } catch (error) {
+      console.error('Error adding plant:', error);
+      toast.error('Failed to add plant.');
+    }
+  };
+
+  const handleDeletePlant = async (plantId: string) => {
+    try {
+      const response = await axios.delete(Endpoints.Plant.DELETE(plantId),
+      { headers: { token: token || '' } }
+    );
+      toast.success('Plant deleted successfully!');
+      setPlants((prev) => prev.filter((p) => p.plantId !== plantId));
+    } catch (error) {
+      console.error('Error deleting plant:', error);
+      toast.error('Failed to delete plant.');
+    }
+  };
 
   // Lifecycle change handler (details view)
-  const handleLifecycleChange = (index: number, field: 'essence' | 'days') => (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLifecycleChange = (
+    index: number,
+    field: 'essence' | 'stage',
+    value: string | number
+  ) => {
     const updated = [...lifecycleData];
     updated[index] = {
       ...updated[index],
-      [field]: Number(e.target.value)
+      [field]: field === 'essence' ? Number(value) : value
     };
     setLifecycleData(updated);
   };
 
   // Plant health change handler (details view)
-  const handleHealthChange = (index: number, field: 'resources' | 'halfLife') => (e: ChangeEvent<HTMLInputElement>) => {
+  const handleHealthChange = (
+    index: number,
+    field: 'resources' | 'halfLife' | 'division' | 'min_health' | 'max_health',
+    value: string | number
+  ) => {
     const updated = [...plantHealthData];
     updated[index] = {
       ...updated[index],
-      [field]: field === 'halfLife' && e.target.value === '' ? '' : Number(e.target.value)
+      [field]: field === 'division' ? value : Number(value)
     };
     setPlantHealthData(updated);
+  };
+
+  const handleFormulaChange = (
+    index: number,
+    field: 'l_res_1' | 'l_res_2' | 'l_res_3',
+    value: string
+  ) => {
+    const updated = [...formulaData];
+    updated[index] = {
+      ...updated[index],
+      [field]: value
+    };
+    setFormulaData(updated);
+  };
+
+  const handleDivisionChange = (
+    index: number,
+    field: 'min' | 'max' | 'base',
+    value: string
+  ) => {
+    const updated = [...divisionData];
+    updated[index] = {
+      ...updated[index],
+      [field]: Number(value)
+    };
+    setDivisionData(updated);
   };
 
   // Handlers for Add New Plant Config - Stage rows
@@ -146,10 +334,10 @@ const PlantConfig: React.FC = () => {
 
   // Handlers for Add New Plant Config - Plant Health rows
   const addNewPlantHealthRow = () => {
-    setNewPlantHealth([...newPlantHealth, { division: '', resources: 0, halfLife: '' }]);
+    setNewPlantHealth([...newPlantHealth, { min_health: 0, max_health: 0, resources: 0, halfLife: '' }]);
   };
 
-  const handleNewPlantHealthChange = (index: number, field: 'division' | 'resources' | 'halfLife') => (
+  const handleNewPlantHealthChange = (index: number, field: 'resources' | 'halfLife' | 'min_health' | 'max_health') => (
     e: ChangeEvent<HTMLInputElement>
   ) => {
     const updated = [...newPlantHealth];
@@ -161,6 +349,18 @@ const PlantConfig: React.FC = () => {
           : e.target.value
     };
     setNewPlantHealth(updated);
+  };
+
+  const handleNewFormulaChange = (index: number, field: 'l_res_1' | 'l_res_2' | 'l_res_3', value: string) => {
+    const updated = [...newFormulaData];
+    updated[index][field] = value;
+    setNewFormulaData(updated);
+  };
+
+  const handleNewDivisionChange = (index: number, field: 'min' | 'max' | 'base', value: string) => {
+    const updated = [...newDivisionData];
+    updated[index][field] = Number(value);
+    setNewDivisionData(updated);
   };
 
   const removePlantHealthRow = (index: number) => {
@@ -180,6 +380,15 @@ const PlantConfig: React.FC = () => {
     setShowDetails(false);
     setSelectedPlant(null);
   };
+
+  React.useEffect(() => {
+    if (selectedPlant) {
+      // Assuming selectedPlant has formula and division properties from API
+      setFormulaData((selectedPlant as any).formula || []);
+      setDivisionData((selectedPlant as any).division || []);
+    }
+  }, [selectedPlant]);
+
 
   // Dummy search handler (first tab)
   const handleSearch = () => {
@@ -225,54 +434,69 @@ const PlantConfig: React.FC = () => {
                 <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Plant Stages</th>
-                      <th>Total Essence Required</th>
-                      <th>Time Required in Days</th>
+                      <th>Stage</th>
+                      <th>Essence</th>
                     </tr>
                   </thead>
                   <tbody>
                     {lifecycleData.map((row, index) => (
                       <tr key={index}>
-                        <td>{row.stage}</td>
                         <td>
                           <Form.Control
-                            type="number"
-                            value={row.essence}
-                            onChange={handleLifecycleChange(index, 'essence')}
+                            type="text"
+                            value={row.stage}
+                            onChange={(e) => handleLifecycleChange(index, 'stage', e.target.value)}
                           />
                         </td>
                         <td>
                           <Form.Control
                             type="number"
-                            value={row.days}
-                            onChange={handleLifecycleChange(index, 'days')}
+                            value={row.essence}
+                            onChange={(e) => handleLifecycleChange(index, 'essence', e.target.value)}
                           />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </Table>
-                <Button variant="primary" className="mb-4" onClick={handleSaveLifecycle}>
-                  Save Lifecycle
-                </Button>
                 <h5 className="mt-4">Plant Health</h5>
                 <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Plant Health Divisions</th>
-                      <th>Resources per 5 point in Health</th>
-                      <th>HALF LIFE FACTOR % of Total</th>
+                      <th>Min Health</th>
+                      <th>Max Health</th>
+                      <th>Resource Need</th>
+                      <th>Decay Rate</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {plantHealthData.map((row, index) => (
+                    {plantHealthData!.map((row, index) => (
                       <tr key={index}>
-                        <td>{row.division}</td>
+                        <td>
+                          <Form.Control
+                            type="number"
+                            value={row.min_health}
+                            onChange={(e) =>
+                              handleHealthChange(index, 'min_health', e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="number"
+                            value={row.max_health}
+                            onChange={(e) =>
+                              handleHealthChange(index, 'max_health', e.target.value)
+                            }
+                          />
+                        </td>
                         <td>
                           <Form.Control
                             type="number"
                             value={row.resources}
-                            onChange={handleHealthChange(index, 'resources')}
+                            onChange={(e) =>
+                              handleHealthChange(index, 'resources', e.target.value)
+                            }
                           />
                         </td>
                         <td>
@@ -280,16 +504,107 @@ const PlantConfig: React.FC = () => {
                             type="number"
                             step="0.01"
                             value={row.halfLife}
-                            onChange={handleHealthChange(index, 'halfLife')}
+                            onChange={(e) =>
+                              handleHealthChange(index, 'halfLife', e.target.value)
+                            }
                           />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </Table>
-                <Button variant="primary" onClick={handleSavePlantHealth}>
-                  Save Plant Health
-                </Button>
+                <h5 className="mt-4">Formula</h5>
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>L Res 1</th>
+                      <th>L Res 2</th>
+                      <th>L Res 3</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formulaData.map((row, index) => (
+                      <tr key={index}>
+                        <td>
+                          <Form.Control
+                            type="text"
+                            value={row.l_res_1}
+                            onChange={(e) =>
+                              handleFormulaChange(index, 'l_res_1', e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="text"
+                            value={row.l_res_2}
+                            onChange={(e) =>
+                              handleFormulaChange(index, 'l_res_2', e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="text"
+                            value={row.l_res_3}
+                            onChange={(e) =>
+                              handleFormulaChange(index, 'l_res_3', e.target.value)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+
+                <h5 className="mt-4">Divisions</h5>
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Min</th>
+                      <th>Max</th>
+                      <th>Base</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {divisionData.map((row, index) => (
+                      <tr key={index}>
+                        <td>
+                          <Form.Control
+                            type="number"
+                            value={row.min}
+                            onChange={(e) =>
+                              handleDivisionChange(index, 'min', e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="number"
+                            value={row.max}
+                            onChange={(e) =>
+                              handleDivisionChange(index, 'max', e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="number"
+                            value={row.base}
+                            onChange={(e) =>
+                              handleDivisionChange(index, 'base', e.target.value)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+                <div className="mt-4">
+                  <Button variant="primary" onClick={handleUpdatePlant}>
+                    Update
+                  </Button>
+                </div>
               </div>
             ) : (
               <div>
@@ -338,7 +653,12 @@ const PlantConfig: React.FC = () => {
                         <td>{plant.plantDescription}</td>
                         <td>{plant.state}</td>
                         <td>
-                          <Button variant="danger" size="sm" className="me-2">
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            className="me-2"
+                            onClick={() => handleDeletePlant(plant.plantId)}
+                          >
                             Delete
                           </Button>
                           <Button variant="info" size="sm" onClick={() => handleViewDetails(plant)}>
@@ -406,7 +726,8 @@ const PlantConfig: React.FC = () => {
               <Table striped bordered hover>
                 <thead>
                   <tr>
-                    <th>Division Range</th>
+                    <th>Min Health</th>
+                    <th>Max Health</th>
                     <th>Resources per 5 point in Health</th>
                     <th>Half Life Factor (Decay Life)</th>
                     <th>Actions</th>
@@ -418,8 +739,15 @@ const PlantConfig: React.FC = () => {
                       <td>
                         <Form.Control
                           type="text"
-                          value={row.division}
-                          onChange={handleNewPlantHealthChange(index, 'division')}
+                          value={row.min_health}
+                          onChange={handleNewPlantHealthChange(index, 'min_health')}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          value={row.max_health}
+                          onChange={handleNewPlantHealthChange(index, 'max_health')}
                         />
                       </td>
                       <td>
@@ -449,27 +777,98 @@ const PlantConfig: React.FC = () => {
               <Button variant="secondary" onClick={addNewPlantHealthRow}>
                 Add Health Row
               </Button>
-
+              <h5 className="mt-4">Formula</h5>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>L Res 1</th>
+                    <th>L Res 2</th>
+                    <th>L Res 3</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {newFormulaData.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          value={row.l_res_1}
+                          onChange={(e) => handleNewFormulaChange(index, 'l_res_1', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          value={row.l_res_2}
+                          onChange={(e) => handleNewFormulaChange(index, 'l_res_2', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          value={row.l_res_3}
+                          onChange={(e) => handleNewFormulaChange(index, 'l_res_3', e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              <Button variant="secondary" onClick={() => setNewFormulaData([...newFormulaData, { l_res_1: '', l_res_2: '', l_res_3: '' }])}>
+                Add Formula Row
+              </Button>
+              <h5 className="mt-4">Division</h5>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Base</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {newDivisionData.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Form.Control
+                          type="number"
+                          value={row.min}
+                          onChange={(e) => handleNewDivisionChange(index, 'min', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="number"
+                          value={row.max}
+                          onChange={(e) => handleNewDivisionChange(index, 'max', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="number"
+                          value={row.base}
+                          onChange={(e) => handleNewDivisionChange(index, 'base', e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              <Button variant="secondary" onClick={() => setNewDivisionData([...newDivisionData, { min: 0, max: 0, base: 0 }])}>
+                Add Division Row
+              </Button>
               {/* Plant Details Form */}
-              <Form.Group className="mb-3" controlId="formSerialId">
-                <Form.Label>Serial ID</Form.Label>
-                <Form.Control type="text" placeholder="Enter Serial ID" />
+              <Form.Group className="mb-3" controlId="formPlantNo">
+                <Form.Label>Plant Number</Form.Label>
+                <Form.Control type="text" placeholder="Enter Plant Number" />
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formPlantId">
-                <Form.Label>Plant ID</Form.Label>
-                <Form.Control type="text" placeholder="Enter Plant ID" />
+              <Form.Group className="mb-3" controlId="formSyncMinuteTime">
+                <Form.Label>Sync Minute Time</Form.Label>
+                <Form.Control type="text" placeholder="Enter Sync Minute Time" />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formPlantName">
                 <Form.Label>Plant Name</Form.Label>
                 <Form.Control type="text" placeholder="Enter Plant Name" />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formPlantCategory">
-                <Form.Label>Plant Category</Form.Label>
-                <Form.Control type="text" placeholder="Enter Plant Category" />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formPlantDescription">
-                <Form.Label>Plant Description</Form.Label>
-                <Form.Control as="textarea" rows={3} placeholder="Enter Plant Description" />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formPlantState">
                 <Form.Label>State</Form.Label>
@@ -480,15 +879,11 @@ const PlantConfig: React.FC = () => {
               </Form.Group>
               <Row className="mt-3">
                 <Col>
-                  <Button variant="primary" type="submit">
-                    Add Plant
-                  </Button>
-                </Col>
-                <Col>
                   <Button
                     variant="success"
-                    onClick={() =>
-                      console.log('Save new plant config', { newPlantStages, newPlantHealth })
+                    onClick={() => {
+                      handleAddPlantToServer();
+                    }
                     }
                   >
                     Save Value
@@ -590,6 +985,7 @@ const PlantConfig: React.FC = () => {
           </Tab>
         </Tabs>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
+import axios from '../utils/axiosInstance';import Endpoints from '../endpoints';
 import {
   Box,
   Button,
@@ -19,13 +20,19 @@ import {
   TextField,
   Typography,
   FormControl,
+  TablePagination,
+  Chip,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import '../styles/InfoCard.css';
 import BlockIcon from '@mui/icons-material/Block'; // For Ban Player button
+import { CSVLink } from 'react-csv';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import Checkbox from '@mui/material/Checkbox';
 
 // Define a type for a player (update the fields as needed)
 interface Player {
-  id: number;
+  id: string;
   playerId: string;
   name: string;
   email: string;
@@ -35,29 +42,7 @@ interface Player {
   registeredDate: string;
 }
 
-// Sample initial data
-const initialData: Player[] = [
-  {
-    id: 1,
-    playerId: 'P001',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    mobile: '1234567890',
-    deviceType: 'Android',
-    kycStatus: 'Verified',
-    registeredDate: '2023-01-01',
-  },
-  {
-    id: 2,
-    playerId: 'P002',
-    name: 'Jane Smith',
-    email: 'jane.smith@example.com',
-    mobile: '0987654321',
-    deviceType: 'iOS',
-    kycStatus: 'Pending',
-    registeredDate: '2023-02-15',
-  },
-];
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -226,11 +211,66 @@ const EditPlayerPage: React.FC<EditPlayerPageProps> = ({ player, onSave, onCance
 };
 
 const PlayerList: React.FC = () => {
-  const [players, setPlayers] = useState<Player[]>(initialData);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [kycFilter, setKycFilter] = useState('All');
   const [deviceFilter, setDeviceFilter] = useState('All');
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalPlayers, setTotalPlayers] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = filteredPlayers.map((player) => player.id);
+      setSelectedIds(newSelected);
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const fetchPlayers = async () => {
+      try {
+        const res = await axios.get(`${Endpoints.Dashboard.GET_ALL_PLAYERS}?page=${page}&limit=${rowsPerPage}&search=`, {
+          headers: { token: token || '' }
+        });
+        if (res.data?.status) {
+          const playersData = res.data.data.data.map((p: any, index: number) => ({
+            id: (page - 1) * rowsPerPage + index + 1,
+            playerId: p.playerId || '',
+            name: p.username || '',
+            email: '', // no email in response
+            mobile: '', // no mobile in response
+            deviceType: p.platform_type === 0 ? 'Android' : p.platform_type === 1 ? 'iOS' : 'Web',
+            kycStatus: 'Pending', // placeholder as not in response
+            registeredDate: new Date(p.createdAt).toLocaleDateString(),
+          }));
+          setPlayers(playersData);
+          setTotalPlayers(res.data.data.totalPlayers || 0);
+        }
+      } catch (err) {
+        console.error('Failed to fetch player data', err);
+      }
+    };
+
+    fetchPlayers();
+  }, [page, rowsPerPage]);
+  
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setPage(1);
+      // refetch or filter data
+    }, 300);
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
 
   // Handle search term change
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -257,15 +297,27 @@ const PlayerList: React.FC = () => {
     return matchesSearch && matchesKyc && matchesDevice;
   });
 
+  const csvHeaders = [
+    { label: 'Player ID', key: 'playerId' },
+    { label: 'Name', key: 'name' },
+    { label: 'Email', key: 'email' },
+    { label: 'Mobile', key: 'mobile' },
+    { label: 'Device Type', key: 'deviceType' },
+    { label: 'KYC Status', key: 'kycStatus' },
+    { label: 'Registered Date', key: 'registeredDate' },
+  ];
+
+  const csvData = filteredPlayers.filter((p) => selectedIds.includes(p.id));
+
   const handleEditClick = (player: Player) => {
     setEditingPlayer(player);
   };
 
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: string) => {
     setPlayers(players.filter((p) => p.id !== id));
   };
 
-  const handleBanClick = (id: number) => {
+  const handleBanClick = (id: string) => {
     // Implement ban logic here. For example, update the player's status or remove from the list.
     console.log(`Ban player with id ${id}`);
   };
@@ -334,11 +386,41 @@ const PlayerList: React.FC = () => {
         </FormControl>
       </Box>
 
+      {/* Actions Row */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Typography variant="subtitle2" color="text.secondary">
+          Showing {(page - 1) * rowsPerPage + 1}–{Math.min(page * rowsPerPage, totalPlayers)} of {totalPlayers} results
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            disabled={selectedIds.length === 0}
+            variant="outlined"
+            color="error"
+            onClick={() => {
+              setPlayers((prev) => prev.filter((p) => !selectedIds.includes(p.id)));
+              setSelectedIds([]);
+            }}
+          >
+            Delete Selected
+          </Button>
+          <CSVLink data={csvData} headers={csvHeaders} filename="selected_players.csv" style={{ textDecoration: 'none' }}>
+            <Button variant="outlined" startIcon={<FileDownloadIcon />}>Export CSV</Button>
+          </CSVLink>
+        </Box>
+      </Box>
+
       {/* Player Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
+          <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={selectedIds.length > 0 && selectedIds.length === filteredPlayers.length}
+                  indeterminate={selectedIds.length > 0 && selectedIds.length < filteredPlayers.length}
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
               <TableCell>Player ID</TableCell>
               <TableCell>Player Name</TableCell>
               <TableCell>Email</TableCell>
@@ -348,17 +430,29 @@ const PlayerList: React.FC = () => {
               <TableCell>Registered Date</TableCell>
               <TableCell align="center">Actions</TableCell>
               <TableCell align="center">Ban</TableCell>
-            </TableRow>
+          </TableRow>
           </TableHead>
           <TableBody>
             {filteredPlayers.map((player) => (
               <TableRow key={player.id}>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={selectedIds.includes(player.id)}
+                    onChange={() => handleSelectOne(player.id)}
+                  />
+                </TableCell>
                 <TableCell>{player.playerId}</TableCell>
                 <TableCell>{player.name}</TableCell>
                 <TableCell>{player.email}</TableCell>
                 <TableCell>{player.mobile}</TableCell>
                 <TableCell>{player.deviceType}</TableCell>
-                <TableCell>{player.kycStatus}</TableCell>
+                <TableCell>
+                  <Chip label={player.kycStatus} color={
+                    player.kycStatus === 'Verified' ? 'success' :
+                      player.kycStatus === 'Pending' ? 'warning' :
+                        'error'
+                  } />
+                </TableCell>
                 <TableCell>{player.registeredDate}</TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => handleEditClick(player)}>
@@ -377,7 +471,7 @@ const PlayerList: React.FC = () => {
             ))}
             {filteredPlayers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} align="center">
+                <TableCell colSpan={10} align="center">
                   No players found.
                 </TableCell>
               </TableRow>
@@ -385,6 +479,19 @@ const PlayerList: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box className="pagination-container">
+        <TablePagination
+          component="div"
+          count={totalPlayers}
+          page={page - 1}
+          onPageChange={(_, newPage) => setPage(newPage + 1)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(1);
+          }}
+        />
+      </Box>
     </Box>
   );
 };

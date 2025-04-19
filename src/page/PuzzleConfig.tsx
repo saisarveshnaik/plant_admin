@@ -1,7 +1,9 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
+import axios from '../utils/axiosInstance';import Endpoints from '../endpoints';
 import { Modal, Button, Table, Form } from 'react-bootstrap';
 
 interface Puzzle {
+  _id?: string;
   gameNo: number;
   levelno: number;
   d_sunlight: number;
@@ -16,19 +18,6 @@ interface Puzzle {
 }
 
 const initialPuzzleData: Puzzle[] = [
-  {
-    gameNo: 0,
-    levelno: 2,
-    d_sunlight: 2,
-    d_water: 2,
-    d_nutrients: 2,
-    n_sunlight: 2,
-    n_water: 2,
-    n_nutrients: 2,
-    reward_exp: 2,
-    createdAt: "2025-01-16T05:56:21.567Z",
-    updatedAt: "2025-02-24T14:17:30.625Z"
-  }
 ];
 
 const PuzzleConfig: React.FC = () => {
@@ -36,9 +25,30 @@ const PuzzleConfig: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showLevelsModal, setShowLevelsModal] = useState(false);
   const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle | null>(null);
+  const token = localStorage.getItem('authToken');
 
   // Puzzle list state
   const [puzzles, setPuzzles] = useState<Puzzle[]>(initialPuzzleData);
+
+  useEffect(() => {
+    const fetchPuzzles = async () => {
+      try {
+        const response = await axios.get(
+          Endpoints.PuzzleConfig.GET,
+          { headers: { token: token || '' } }
+        );
+        const data = Array.isArray(response.data) 
+          ? response.data 
+          : response.data?.data || []; // fallback if wrapped
+        setPuzzles(data);
+      } catch (error) {
+        console.error("Error fetching puzzles:", error);
+        setPuzzles([]); // ensure it's still an array on error
+      }
+    };
+
+    fetchPuzzles();
+  }, []);
 
   // Add Puzzle Form state
   const [newGameNo, setNewGameNo] = useState(0);
@@ -55,7 +65,7 @@ const PuzzleConfig: React.FC = () => {
   const [updatedRewardExp, setUpdatedRewardExp] = useState(0);
 
   // Add a new puzzle
-  const handleAddPuzzle = () => {
+  const handleAddPuzzle = async () => {
     const newPuzzle: Puzzle = {
       gameNo: newGameNo,
       levelno: newLevelNo,
@@ -69,8 +79,17 @@ const PuzzleConfig: React.FC = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    setPuzzles([...puzzles, newPuzzle]);
-    setShowAddModal(false);
+    try {
+      const { data } = await axios.post(
+        Endpoints.PuzzleConfig.ADD, 
+        newPuzzle,
+        { headers: { token: token || '' } }
+      );
+      setPuzzles([...puzzles, data]);
+      setShowAddModal(false);
+    } catch (error) {
+      console.error("Error adding puzzle:", error);
+    }
   };
 
   // Open Levels Modal with selected puzzle data
@@ -87,23 +106,37 @@ const PuzzleConfig: React.FC = () => {
   };
 
   // Update puzzle data with new level details
-  const handleUpdatePuzzle = () => {
+  const handleUpdatePuzzle = async () => {
     if (selectedPuzzle) {
       const updatedPuzzle = {
         ...selectedPuzzle,
+        gameNo: selectedPuzzle.gameNo,
+        levelno: selectedPuzzle.levelno,
         d_sunlight: updatedDSunlight,
         d_water: updatedDWater,
         d_nutrients: updatedDNutrients,
         n_sunlight: updatedNSunlight,
         n_water: updatedNWater,
         n_nutrients: updatedNNutrients,
-        reward_exp: updatedRewardExp,
-        updatedAt: new Date().toISOString()
+        reward_exp: updatedRewardExp
       };
-      const updatedPuzzles = puzzles.map(p => p === selectedPuzzle ? updatedPuzzle : p);
-      setPuzzles(updatedPuzzles);
-      setShowLevelsModal(false);
-      setSelectedPuzzle(null);
+      try {
+        console.log("Updating puzzle:", updatedPuzzle);
+        console.log(selectedPuzzle);
+        const response = await axios.post(
+          Endpoints.PuzzleConfig.UPDATE(String(selectedPuzzle._id)), 
+          updatedPuzzle,
+          { headers: { token: token || '' } }
+        );
+        
+        console.log("Response from update:", response.data);
+        const updatedPuzzles = puzzles.map(p => p._id === selectedPuzzle._id ? updatedPuzzle : p);
+        setPuzzles(updatedPuzzles);
+        setShowLevelsModal(false);
+        setSelectedPuzzle(null);
+      } catch (error) {
+        console.error("Error updating puzzle:", error);
+      }
     }
   };
 

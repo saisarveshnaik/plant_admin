@@ -1,84 +1,70 @@
-import React, { useState } from 'react';
-import DataTable from 'react-data-table-component';
+import React, { useState, useEffect } from 'react';
+import axios from '../utils/axiosInstance';import DataTable from 'react-data-table-component';
+import Endpoints from '../endpoints';
 
 // Define the type for the data (data structure)
 interface UserData {
-  id: number;
-  name: string;
-  age: number;
+  _id: string;
+  username: string;
+  playerId: string;
+  exp: number;
+  coins: number;
+  refercode: string;
+  leaderboard_point: number;
+  rank: number;
   country: string;
-  joiningDate: string;
-  joiningTime: string;
-  email: string;
-  status: string;
+  image: string;
+  loginType: number;
+  platform_type: number;
+  deviceName: string;
+  deviceModel: string;
+  createdAt: string;
 }
-
-// Sample data
-const data: UserData[] = [
-  { id: 1, name: 'Alice Johnson', age: 25, country: 'USA', joiningDate: '2025-01-15', joiningTime: '14:30:00', email: 'alice.johnson@example.com', status: 'Active' },
-  { id: 2, name: 'Rajesh Kumar', age: 30, country: 'India', joiningDate: '2025-01-15', joiningTime: '15:00:00', email: 'rajesh.kumar@example.com', status: 'Pending' },
-  { id: 3, name: 'Emily Wong', age: 28, country: 'Singapore', joiningDate: '2025-01-15', joiningTime: '16:20:00', email: 'emily.wong@example.com', status: 'Active' },
-  // Add more placeholder data as needed
-];
-
-// Columns for DataTable
-const columns = [
-  {
-    name: 'Name',
-    selector: (row: UserData) => row.name,
-    sortable: true,
-  },
-  {
-    name: 'Age',
-    selector: (row: UserData) => row.age,
-    sortable: true,
-  },
-  {
-    name: 'Country',
-    selector: (row: UserData) => row.country,
-    sortable: true,
-  },
-  {
-    name: 'Joining Date',
-    selector: (row: UserData) => row.joiningDate,
-    sortable: true,
-  },
-  {
-    name: 'Joining Time',
-    selector: (row: UserData) => row.joiningTime,
-    sortable: true,
-  },
-  {
-    name: 'Email',
-    selector: (row: UserData) => row.email,
-  },
-  {
-    name: 'Status',
-    selector: (row: UserData) => row.status,
-    sortable: true,
-  },
-];
 
 const Last24hrUsers: React.FC = () => {
   // State for the search query and filtered data
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState<UserData[]>([]);
+  const [data, setData] = useState<UserData[]>([]);
+
+  // Columns for DataTable
+  const columns = [
+    { name: 'Username', selector: (row: UserData) => row.username, sortable: true },
+    { name: 'Player ID', selector: (row: UserData) => row.playerId, sortable: true },
+    { name: 'EXP', selector: (row: UserData) => row.exp, sortable: true },
+    { name: 'Coins', selector: (row: UserData) => row.coins, sortable: true },
+    { name: 'Leaderboard Points', selector: (row: UserData) => row.leaderboard_point, sortable: true },
+    { name: 'Rank', selector: (row: UserData) => row.rank, sortable: true },
+    { name: 'Device Name', selector: (row: UserData) => row.deviceName, sortable: false },
+    { name: 'Device Model', selector: (row: UserData) => row.deviceModel, sortable: false },
+    { name: 'Created At', selector: (row: UserData) => new Date(row.createdAt).toLocaleString(), sortable: true },
+  ];
+  const token = localStorage.getItem('authToken');
+
+  const fetchPlayers = async (search = '') => {
+    try {
+      const res = await axios.get(`${Endpoints.Dashboard.GET_ALL_PLAYERS}?page=1&limit=100000&search=${search}`, {
+        headers: { token: token || '' }
+      });
+      if (res.data?.status) {
+        const players = res.data.data.data;
+        setData(players);
+        setFilteredData(players);
+      }
+    } catch (err) {
+      console.error('Error fetching players:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
 
   // Handle search input changes
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-
-    // Filter data based on the query
-    const filtered = data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query) ||
-        item.country.toLowerCase().includes(query) ||
-        item.email.toLowerCase().includes(query) ||
-        item.status.toLowerCase().includes(query)
-    );
-
-    setFilteredData(filtered);
+    fetchPlayers(query);
   };
 
   return (
@@ -86,7 +72,7 @@ const Last24hrUsers: React.FC = () => {
       <input
         className='form-control'
         type="text"
-        placeholder="Search by name, country, email, or status"
+        placeholder="Search by username"
         value={searchQuery}
         onChange={handleSearch}
         style={{

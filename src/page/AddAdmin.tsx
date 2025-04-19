@@ -1,13 +1,43 @@
 import React from 'react';
+import { useState } from 'react';
 import '../styles/AddAdmin.css';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Toast, ToastContainer } from 'react-bootstrap';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import axios from '../utils/axiosInstance';import Endpoints from '../endpoints';
 
 const AddAdmin: React.FC = () => {
+
+  const [showToast, setShowToast] = useState(false);
+const [toastMessage, setToastMessage] = useState('');
+
+  const handleAddAdmin = async () => {
+    const newAdmin = {
+      email: (document.getElementById("email_address") as HTMLInputElement).value,
+      password: (document.getElementById("password") as HTMLInputElement).value,
+      name: (document.getElementById("full_name") as HTMLInputElement).value,
+    };
+
+    try {
+      const response = await axios.post(Endpoints.Auth.ADD, newAdmin);
+      setToastMessage('Admin added successfully!');
+    setShowToast(true);
+      document.querySelector('form')?.reset();
+    } catch (error) {
+      console.error("Error adding admin:", error);
+      
+    setToastMessage('Failed to add admin.');
+    setShowToast(true);
+    }
+  };
   return (
     <div className="cards-outer">
 
+<ToastContainer position="top-end" className="p-3">
+  <Toast show={showToast} onClose={() => setShowToast(false)} delay={3000} autohide>
+    <Toast.Body>{toastMessage}</Toast.Body>
+  </Toast>
+</ToastContainer>
        <div className='row'>
         <div className='col-md-8'>
          
@@ -128,7 +158,7 @@ const AddAdmin: React.FC = () => {
           />
         </div> */}
 
-        <button type="button" className="form-control btn btn-primary mt-4">
+        <button type="button" className="form-control btn btn-primary mt-4" onClick={handleAddAdmin}>
           Submit
         </button>
       </form>

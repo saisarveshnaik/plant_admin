@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import Last24hrUsers from './Last24hrUsers';
@@ -16,6 +16,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import axios from '../utils/axiosInstance';import Endpoints from '../endpoints';
 
 // Register the necessary Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -115,6 +116,24 @@ const DailyRevenueGraph: React.FC = () => {
 const InfoCard: React.FC = () => {
   
   const token = localStorage.getItem('authToken');
+  const [dashboardData, setDashboardData] = useState({ totalUsers: 0, totalRevenue: 0, dailyActiveUser: 0 });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const res = await axios.get(Endpoints.Dashboard.GET,
+          { headers: { token: token || '' } }
+        ); // replace with actual endpoint
+        if (res.data?.status) {
+          setDashboardData(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard info', err);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   // If the token is not present, redirect to /login
   if (!token) {
@@ -130,7 +149,7 @@ const InfoCard: React.FC = () => {
             <div className="card-body card1">
               <img src="icons/user.png" className="icon" alt="User Icon" />
               <h5 className="card-title">
-                <CountUp endNumber={23676} duration={3000} />
+                <CountUp endNumber={dashboardData.totalUsers} duration={1000} />
               </h5>
               <p className="card-text">TOTAL USERS</p>
               <Link to="/view-users">
@@ -145,7 +164,7 @@ const InfoCard: React.FC = () => {
             <div className="card-body card1">
               <img src="icons/user.png" className="icon" alt="User Icon" />
               <h5 className="card-title">
-                <CountUp endNumber={3455} duration={3000} />
+                <CountUp endNumber={dashboardData.dailyActiveUser} duration={1000} />
               </h5>
               <p className="card-text">Daily Active Users</p>
               <Link to="">
@@ -160,7 +179,7 @@ const InfoCard: React.FC = () => {
             <div className="card-body card1">
               <img src="icons/downloads.png" className="icon" alt="Downloads Icon" />
               <h5 className="card-title">
-                <CountUp endNumber={44567} duration={3000} />
+                <CountUp endNumber={dashboardData.totalRevenue} duration={1000} />
               </h5>
               <p className="card-text">TOTAL REVENUE</p>
               <Link to="">
@@ -172,7 +191,7 @@ const InfoCard: React.FC = () => {
       </div>
 
       {/* Daily Users & Revenue Graph Section */}
-      <div className="graph-section mt-4">
+      {/* <div className="graph-section mt-4">
         <div className="row">
           <div className="col-md-6">
             <DailyUsersGraph />
@@ -181,7 +200,7 @@ const InfoCard: React.FC = () => {
             <DailyRevenueGraph />
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Last 24hr Users Table */}
       <div className="users-table-div mt-4">
